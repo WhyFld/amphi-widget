@@ -58,18 +58,16 @@
   function createWidgetContainer() {
     widgetContainer = document.createElement('div');
     widgetContainer.id = 'amphi-widget-container';
-    widgetContainer.style.cssText = `
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 9999999;
-      display: none;
-      background: rgba(0, 0, 0, 0.1);
-      backdrop-filter: blur(5px);
-    `;
-
+  widgetContainer.style.cssText = `
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999999;
+  display: none;
+  pointer-events: none;
+`;
     const iframe = document.createElement('iframe');
     iframe.id = 'amphi-widget-iframe';
     iframe.src = WIDGET_URL;
