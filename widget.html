@@ -98,13 +98,40 @@
 }
 
     .arrow-btn {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-    }
-    .arrow-btn:hover {
-      background: rgba(255, 255, 255, 0.25);
-      transform: scale(1.05);
+     /* Arrow buttons - firmly positioned */
+.arrow-container {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 16px;
+  pointer-events: none;
+  z-index: 20;
+}
+
+.arrow-btn {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  pointer-events: auto;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.arrow-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+  transform: scale(1.05);
+}
     }
 
     /* Poll option buttons */
@@ -167,6 +194,16 @@
       <!-- Content will be dynamically injected here -->
     </div>
 
+    <!-- ARROW NAVIGATION (outside content to avoid animation jitter) -->
+    <div id="arrowNav" class="arrow-container hidden">
+      <button onclick="prevCampaign()" class="arrow-btn">
+        <span class="text-xl">←</span>
+      </button>
+      <button onclick="nextCampaign()" class="arrow-btn">
+        <span class="text-xl">→</span>
+      </button>
+    </div>
+    
     <!-- AMPHI BRANDING -->
     <div class="text-center pb-4 text-white/30 text-xs">
       Powered by AMPHI
@@ -305,7 +342,17 @@ function startCampaign() {
 // STEP 1: CAMPAIGN CAROUSEL
 // ============================================
 function renderStep1() {
+  document.querySelector('.glass-popup').classList.remove('step-2');
   document.getElementById('backBtn').classList.add('hidden');
+  
+  // Show arrows if multiple campaigns
+  const arrowNav = document.getElementById('arrowNav');
+  if (campaigns.length > 1) {
+    arrowNav.classList.remove('hidden');
+  } else {
+    arrowNav.classList.add('hidden');
+  }
+  
   const campaign = campaigns[currentCampaignIndex];
   
   let taskDetails = '';
@@ -345,16 +392,7 @@ function renderStep1() {
       Start & Earn £${campaign.reward} →
     </button>
 
-    ${campaigns.length > 1 ? `
-      <div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
-        <button onclick="prevCampaign()" class="pointer-events-auto arrow-btn w-10 h-10 rounded-full flex items-center justify-center text-white transition-all">
-          <span class="text-xl">←</span>
-        </button>
-        <button onclick="nextCampaign()" class="pointer-events-auto arrow-btn w-10 h-10 rounded-full flex items-center justify-center text-white transition-all">
-          <span class="text-xl">→</span>
-        </button>
-      </div>
-    ` : ''}
+    
   `;
 }
 
@@ -363,6 +401,7 @@ function renderStep1() {
 // ============================================
 function renderStep2() {
   document.querySelector('.glass-popup').classList.add('step-2');
+  document.getElementById('arrowNav').classList.add('hidden');
   document.getElementById('backBtn').classList.remove('hidden');
   const campaign = campaigns[currentCampaignIndex];
 
