@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AMPHI Widget Comparison</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .controls {
+      max-width: 1200px;
+      margin: 0 auto 30px;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+
+    .controls h1 {
+      margin-bottom: 20px;
+      color: #333;
+    }
+
+    .button-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .variant-btn {
+      padding: 15px;
+      border: 2px solid #ddd;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    .variant-btn:hover {
+      border-color: #CCFF66;
+      background: #CCFF66;
+      transform: translateY(-2px);
+    }
+
+    .variant-btn.active {
+      border-color: #CCFF66;
+      background: #CCFF66;
+      color: #000;
+    }
+
+    .background-switcher {
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 2px solid #eee;
+    }
+
+    .background-switcher h3 {
+      margin-bottom: 10px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .bg-options {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .bg-btn {
+      padding: 10px 20px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      background: white;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+
+    .bg-btn:hover {
+      transform: scale(1.05);
+    }
+
+    .widget-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      min-height: 600px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      transition: background 0.5s ease;
+    }
+
+    iframe {
+      width: 100%;
+      height: 700px;
+      border: none;
+      background: transparent;
+    }
+
+    .info {
+      background: rgba(255,255,255,0.1);
+      padding: 10px;
+      border-radius: 8px;
+      color: white;
+      font-size: 13px;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="controls">
+  <h1>🎨 AMPHI Widget Variants - Live Comparison</h1>
+  
+  <div class="button-grid">
+    <button class="variant-btn active" onclick="loadVariant('pure-glass')">
+      ✨ Pure Glass<br>
+      <small style="opacity:0.6">Current - Light & Airy</small>
+    </button>
+    <button class="variant-btn" onclick="loadVariant('frosted-hybrid')">
+      🌫️ Frosted Hybrid<br>
+      <small style="opacity:0.6">Glass edges, readable center</small>
+    </button>
+    <button class="variant-btn" onclick="loadVariant('subtle-tint')">
+      🎭 Subtle Tint<br>
+      <small style="opacity:0.6">Always readable</small>
+    </button>
+    <button class="variant-btn" onclick="loadVariant('adaptive')">
+      🧠 Smart Adaptive<br>
+      <small style="opacity:0.6">Adjusts to background</small>
+    </button>
+  </div>
+
+  <div class="background-switcher">
+    <h3>Test on different backgrounds:</h3>
+    <div class="bg-options">
+      <button class="bg-btn" onclick="changeBackground('linear-gradient(135deg, #667eea 0%, #764ba2 100%)')">
+        🟣 Purple Gradient
+      </button>
+      <button class="bg-btn" onclick="changeBackground('#ffffff')">
+        ⚪ White
+      </button>
+      <button class="bg-btn" onclick="changeBackground('#000000')">
+        ⚫ Black
+      </button>
+      <button class="bg-btn" onclick="changeBackground('linear-gradient(135deg, #f093fb 0%, #f5576c 100%)')">
+        🔴 Pink Gradient
+      </button>
+      <button class="bg-btn" onclick="changeBackground('linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)')">
+        🔵 Blue Gradient
+      </button>
+      <button class="bg-btn" onclick="changeBackground('url(https://images.unsplash.com/photo-1557683316-973673baf926?w=1200)')">
+        🖼️ Photo Background
+      </button>
+    </div>
+  </div>
+
+  <div class="info">
+    💡 <strong>Tip:</strong> Try each variant on different backgrounds to see which feels most "chameleon" while staying readable!
+  </div>
+</div>
+
+<div id="widget-container" class="widget-container">
+  <iframe id="widget-frame" src="/widget-pure-glass.html"></iframe>
+</div>
+
+<script>
+  function loadVariant(variant) {
+    const iframe = document.getElementById('widget-frame');
+    iframe.src = `/widget-${variant}.html`;
+    
+    // Update active button
+    document.querySelectorAll('.variant-btn').forEach(btn => {
+      btn.classList.remove('active');
+    });
+    event.target.closest('.variant-btn').classList.add('active');
+  }
+
+  function changeBackground(bg) {
+    const container = document.getElementById('widget-container');
+    if (bg.startsWith('url')) {
+      container.style.background = bg;
+      container.style.backgroundSize = 'cover';
+      container.style.backgroundPosition = 'center';
+    } else {
+      container.style.background = bg;
+    }
+  }
+</script>
+
+</body>
+</html>
