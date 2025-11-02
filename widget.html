@@ -13,18 +13,13 @@
     }
 
     .glass-popup {
-      background: rgba(0, 0, 0, 0.25);
+  background: rgba(0, 0, 0, 0.40);
       backdrop-filter: blur(40px) saturate(180%);
       -webkit-backdrop-filter: blur(40px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.18);
       box-shadow: 
         0 8px 32px 0 rgba(0, 0, 0, 0.15),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-    }
-
-    /* Deeper tint for Step 2 */
-    .glass-popup.step-2 {
-      background: rgba(0, 0, 0, 0.40);
     }
 
     .glass-popup h2,
@@ -122,11 +117,11 @@
     }
 
     .arrow-btn.left {
-      left: 16px;
+      left: -20px;
     }
 
     .arrow-btn.right {
-      right: 16px;
+      right: -20px;
     }
 
     /* Poll option buttons */
@@ -321,7 +316,6 @@ function startCampaign() {
 // STEP 1: CAMPAIGN CAROUSEL
 // ============================================
 function renderStep1() {
-  document.querySelector('.glass-popup').classList.remove('step-2');
   document.getElementById('backBtn').classList.add('hidden');
   
   // Show/hide arrows
@@ -378,7 +372,6 @@ function renderStep1() {
 // STEP 2: CAMPAIGN FORM
 // ============================================
 function renderStep2() {
-  document.querySelector('.glass-popup').classList.add('step-2');
   document.getElementById('backBtn').classList.remove('hidden');
   document.getElementById('leftArrow').classList.add('hidden');
   document.getElementById('rightArrow').classList.add('hidden');
