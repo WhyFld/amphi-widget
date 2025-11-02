@@ -5,50 +5,75 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AMPHI Widget</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: transparent;
-    }
+<style>
+  body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
 
-    /* Glass morphism effect ON THE CARD ITSELF */
-    .glass-popup {
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    }
+  /* PURE GLASS MORPHISM - Light & Airy */
+  .glass-popup {
+    background: rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(40px) saturate(180%);
+    -webkit-backdrop-filter: blur(40px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 
+      0 8px 32px 0 rgba(0, 0, 0, 0.1),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
+  }
 
-    /* Animations */
-    @keyframes slideIn {
-      from {
-        opacity: 0;
-        transform: translateY(20px) scale(0.95);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0) scale(1);
-      }
-    }
+  /* Text shadows for readability on any background */
+  .glass-popup h2,
+  .glass-popup p {
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
 
-    .popup-enter {
-      animation: slideIn 0.3s ease-out;
-    }
+  /* Campaign content area - slightly more visible */
+  .campaign-area {
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
 
-    /* Carousel dots */
-    .carousel-dot {
-      transition: all 0.3s ease;
+  /* Animations */
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px) scale(0.95);
     }
-    .carousel-dot.active {
-      background: #CCFF66;
-      width: 24px;
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
     }
-  </style>
-</head>
-<body>
+  }
 
+  .popup-enter {
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Carousel dots */
+  .carousel-dot {
+    transition: all 0.3s ease;
+    backdrop-filter: blur(10px);
+  }
+  .carousel-dot.active {
+    background: #CCFF66;
+    width: 24px;
+    box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
+  }
+
+  /* Arrow buttons with glass effect */
+  .arrow-btn {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+  }
+  .arrow-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: scale(1.05);
+  }
+</style>
 <div id="widget-root" class="w-full h-screen flex items-center justify-center p-4">
   <!-- GLASS MORPHISM POPUP (the card itself is glass) -->
   <div class="glass-popup popup-enter rounded-3xl w-full max-w-md relative overflow-hidden">
