@@ -22,6 +22,11 @@
         inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
     }
 
+    /* Deeper tint for Step 2 */
+    .glass-popup.step-2 {
+      background: rgba(0, 0, 0, 0.40);
+    }
+
     .glass-popup h2,
     .glass-popup p {
       text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
@@ -47,64 +52,81 @@
     .popup-enter {
       animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
-/* Deeper tint for Step 2 */
-.glass-popup.step-2 {
-  background: rgba(0, 0, 0, 0.40);
-}
 
-/* Carousel slide animations */
-@keyframes slideInFromRight {
-  from {
-    opacity: 0;
-    transform: translateX(30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+    /* Carousel slide animations */
+    @keyframes slideInFromRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
 
-@keyframes slideInFromLeft {
-  from {
-    opacity: 0;
-    transform: translateX(-30px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
+    @keyframes slideInFromLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
 
-.slide-right {
-  animation: slideInFromRight 0.3s ease-out;
-}
+    .slide-right {
+      animation: slideInFromRight 0.3s ease-out;
+    }
 
-.slide-left {
-  animation: slideInFromLeft 0.3s ease-out;
-}
-      
-    
-    
+    .slide-left {
+      animation: slideInFromLeft 0.3s ease-out;
+    }
+
     .carousel-dot {
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
     }
     
     .carousel-dot.active {
-  background: #CCFF66;
-  width: 24px;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
-}
+      background: #CCFF66;
+      width: 24px;
+      border-radius: 4px;
+      box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
+    }
 
+    /* Arrows - firmly positioned outside content area */
     .arrow-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
       background: rgba(255, 255, 255, 0.15);
       backdrop-filter: blur(10px);
       border: 1px solid rgba(255, 255, 255, 0.25);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 30;
     }
+
     .arrow-btn:hover {
       background: rgba(255, 255, 255, 0.25);
-      transform: scale(1.05);
+      transform: translateY(-50%) scale(1.05);
+    }
+
+    .arrow-btn.left {
+      left: 16px;
+    }
+
+    .arrow-btn.right {
+      right: 16px;
     }
 
     /* Poll option buttons */
@@ -162,6 +184,14 @@
       ← Back
     </button>
 
+    <!-- ARROW BUTTONS (shown in step 1 only) -->
+    <button id="leftArrow" onclick="prevCampaign()" class="arrow-btn left hidden">
+      <span class="text-xl">←</span>
+    </button>
+    <button id="rightArrow" onclick="nextCampaign()" class="arrow-btn right hidden">
+      <span class="text-xl">→</span>
+    </button>
+
     <!-- CONTENT AREA -->
     <div id="content" class="p-8 pt-12">
       <!-- Content will be dynamically injected here -->
@@ -179,7 +209,7 @@
 // ============================================
 // STATE MANAGEMENT
 // ============================================
-let currentStep = 1; // 1 = carousel, 2 = form, 3 = email/stripe
+let currentStep = 1;
 let currentCampaignIndex = 0;
 let currentQuestionIndex = 0;
 let formData = {};
@@ -265,35 +295,21 @@ function closeWidget() {
 function nextCampaign() {
   currentCampaignIndex = (currentCampaignIndex + 1) % campaigns.length;
   const content = document.getElementById('content');
-  
-  // Remove both classes first
   content.classList.remove('slide-left', 'slide-right');
-  
-  // Force browser to recognize the change (trigger reflow)
   void content.offsetWidth;
-  
-  // Add the animation class
   content.classList.add('slide-right');
-  
   renderStep1();
 }
 
 function prevCampaign() {
   currentCampaignIndex = (currentCampaignIndex - 1 + campaigns.length) % campaigns.length;
   const content = document.getElementById('content');
-  
-  // Remove both classes first
   content.classList.remove('slide-left', 'slide-right');
-  
-  // Force browser to recognize the change (trigger reflow)
   void content.offsetWidth;
-  
-  // Add the animation class
   content.classList.add('slide-left');
-  
   renderStep1();
 }
-  
+
 function startCampaign() {
   currentStep = 2;
   currentQuestionIndex = 0;
@@ -305,7 +321,18 @@ function startCampaign() {
 // STEP 1: CAMPAIGN CAROUSEL
 // ============================================
 function renderStep1() {
+  document.querySelector('.glass-popup').classList.remove('step-2');
   document.getElementById('backBtn').classList.add('hidden');
+  
+  // Show/hide arrows
+  if (campaigns.length > 1) {
+    document.getElementById('leftArrow').classList.remove('hidden');
+    document.getElementById('rightArrow').classList.remove('hidden');
+  } else {
+    document.getElementById('leftArrow').classList.add('hidden');
+    document.getElementById('rightArrow').classList.add('hidden');
+  }
+  
   const campaign = campaigns[currentCampaignIndex];
   
   let taskDetails = '';
@@ -344,17 +371,6 @@ function renderStep1() {
     <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
       Start & Earn £${campaign.reward} →
     </button>
-
-    ${campaigns.length > 1 ? `
-      <div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
-        <button onclick="prevCampaign()" class="pointer-events-auto arrow-btn w-10 h-10 rounded-full flex items-center justify-center text-white transition-all">
-          <span class="text-xl">←</span>
-        </button>
-        <button onclick="nextCampaign()" class="pointer-events-auto arrow-btn w-10 h-10 rounded-full flex items-center justify-center text-white transition-all">
-          <span class="text-xl">→</span>
-        </button>
-      </div>
-    ` : ''}
   `;
 }
 
@@ -364,6 +380,9 @@ function renderStep1() {
 function renderStep2() {
   document.querySelector('.glass-popup').classList.add('step-2');
   document.getElementById('backBtn').classList.remove('hidden');
+  document.getElementById('leftArrow').classList.add('hidden');
+  document.getElementById('rightArrow').classList.add('hidden');
+  
   const campaign = campaigns[currentCampaignIndex];
 
   if (campaign.type === 'poll') {
@@ -410,20 +429,16 @@ function renderPoll(campaign) {
 }
 
 function selectPollOption(index) {
-  // Remove previous selection
   document.querySelectorAll('.poll-option').forEach(btn => {
     btn.classList.remove('selected');
   });
   
-  // Mark as selected
   document.getElementById(`poll-option-${index}`).classList.add('selected');
   
-  // Save answer
   const campaign = campaigns[currentCampaignIndex];
   const question = campaign.questions[currentQuestionIndex];
   formData[`question_${currentQuestionIndex}`] = question.options[index];
   
-  // Enable next button
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled = false;
   nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
@@ -570,6 +585,8 @@ function renderImageUpload(campaign) {
 // ============================================
 function renderStep3() {
   document.getElementById('backBtn').classList.add('hidden');
+  document.getElementById('leftArrow').classList.add('hidden');
+  document.getElementById('rightArrow').classList.add('hidden');
   const campaign = campaigns[currentCampaignIndex];
 
   document.getElementById('content').innerHTML = `
