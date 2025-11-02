@@ -265,19 +265,35 @@ function closeWidget() {
 function nextCampaign() {
   currentCampaignIndex = (currentCampaignIndex + 1) % campaigns.length;
   const content = document.getElementById('content');
-  content.classList.remove('slide-left');
+  
+  // Remove both classes first
+  content.classList.remove('slide-left', 'slide-right');
+  
+  // Force browser to recognize the change (trigger reflow)
+  void content.offsetWidth;
+  
+  // Add the animation class
   content.classList.add('slide-right');
+  
   renderStep1();
 }
 
 function prevCampaign() {
   currentCampaignIndex = (currentCampaignIndex - 1 + campaigns.length) % campaigns.length;
   const content = document.getElementById('content');
-  content.classList.remove('slide-right');
+  
+  // Remove both classes first
+  content.classList.remove('slide-left', 'slide-right');
+  
+  // Force browser to recognize the change (trigger reflow)
+  void content.offsetWidth;
+  
+  // Add the animation class
   content.classList.add('slide-left');
+  
   renderStep1();
 }
-
+  
 function startCampaign() {
   currentStep = 2;
   currentQuestionIndex = 0;
