@@ -47,16 +47,55 @@
     .popup-enter {
       animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
+/* Deeper tint for Step 2 */
+.glass-popup.step-2 {
+  background: rgba(0, 0, 0, 0.40);
+}
 
+/* Carousel slide animations */
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.slide-right {
+  animation: slideInFromRight 0.3s ease-out;
+}
+
+.slide-left {
+  animation: slideInFromLeft 0.3s ease-out;
+}
+      
+    
+    
     .carousel-dot {
       transition: all 0.3s ease;
       backdrop-filter: blur(10px);
     }
+    
     .carousel-dot.active {
-      background: #CCFF66;
-      width: 24px;
-      box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
-    }
+  background: #CCFF66;
+  width: 24px;
+  border-radius: 4px;
+  box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
+}
 
     .arrow-btn {
       background: rgba(255, 255, 255, 0.15);
@@ -225,11 +264,17 @@ function closeWidget() {
 
 function nextCampaign() {
   currentCampaignIndex = (currentCampaignIndex + 1) % campaigns.length;
+  const content = document.getElementById('content');
+  content.classList.remove('slide-left');
+  content.classList.add('slide-right');
   renderStep1();
 }
 
 function prevCampaign() {
   currentCampaignIndex = (currentCampaignIndex - 1 + campaigns.length) % campaigns.length;
+  const content = document.getElementById('content');
+  content.classList.remove('slide-right');
+  content.classList.add('slide-left');
   renderStep1();
 }
 
@@ -301,6 +346,7 @@ function renderStep1() {
 // STEP 2: CAMPAIGN FORM
 // ============================================
 function renderStep2() {
+  document.querySelector('.glass-popup').classList.add('step-2');
   document.getElementById('backBtn').classList.remove('hidden');
   const campaign = campaigns[currentCampaignIndex];
 
