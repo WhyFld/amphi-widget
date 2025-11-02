@@ -66,7 +66,7 @@
       height: 100%;
       z-index: 9999999;
       display: none;
-      background: rgba(0, 0, 0, 0.3);
+      background: rgba(0, 0, 0, 0.1);
       backdrop-filter: blur(5px);
     `;
 
