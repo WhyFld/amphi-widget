@@ -5,128 +5,130 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AMPHI Widget</title>
   <script src="https://cdn.tailwindcss.com"></script>
-<style>
-  body {
-    margin: 0;
-    padding: 0;
-    background: transparent;
-  }
-
-  /* GLASS MORPHISM - Bigger & with subtle tint for readability */
-  .glass-popup {
-    background: rgba(0, 0, 0, 0.25);  /* Subtle dark tint added */
-    backdrop-filter: blur(40px) saturate(180%);
-    -webkit-backdrop-filter: blur(40px) saturate(180%);
-    border: 1px solid rgba(255, 255, 255, 0.18);
-    box-shadow: 
-      0 8px 32px 0 rgba(0, 0, 0, 0.15),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
-  }
-
-  /* Text is now always readable */
-  .glass-popup h2,
-  .glass-popup p {
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
-  }
-
-  /* Campaign content area */
-  .campaign-area {
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-  }
-
-  /* Animations */
-  @keyframes slideIn {
-    from {
-      opacity: 0;
-      transform: translateY(20px) scale(0.95);
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: transparent;
     }
-    to {
-      opacity: 1;
-      transform: translateY(0) scale(1);
+
+    .glass-popup {
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      box-shadow: 
+        0 8px 32px 0 rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.2);
     }
-  }
 
-  .popup-enter {
-    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-  }
+    .glass-popup h2,
+    .glass-popup p {
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+    }
 
-  /* Carousel dots */
-  .carousel-dot {
-    transition: all 0.3s ease;
-    backdrop-filter: blur(10px);
-  }
-  .carousel-dot.active {
-    background: #CCFF66;
-    width: 24px;
-    box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
-  }
+    .campaign-area {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(20px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
 
-  /* Arrow buttons */
-  .arrow-btn {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.25);
-  }
-  .arrow-btn:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: scale(1.05);
-  }
-</style>
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
 
-  <div id="widget-root" class="w-full h-screen flex items-center justify-center p-4">
-  <!-- GLASS MORPHISM POPUP (the card itself is glass) -->
+    .popup-enter {
+      animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .carousel-dot {
+      transition: all 0.3s ease;
+      backdrop-filter: blur(10px);
+    }
+    .carousel-dot.active {
+      background: #CCFF66;
+      width: 24px;
+      box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
+    }
+
+    .arrow-btn {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+    .arrow-btn:hover {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(1.05);
+    }
+
+    /* Poll option buttons */
+    .poll-option {
+      background: rgba(255, 255, 255, 0.1);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      transition: all 0.2s;
+    }
+    .poll-option:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(204, 255, 102, 0.5);
+    }
+    .poll-option.selected {
+      background: rgba(204, 255, 102, 0.2);
+      border-color: #CCFF66;
+    }
+
+    /* Text input styling */
+    textarea, input[type="text"], input[type="email"] {
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: white;
+      outline: none;
+    }
+    textarea:focus, input:focus {
+      border-color: #CCFF66;
+      background: rgba(255, 255, 255, 0.15);
+    }
+    textarea::placeholder, input::placeholder {
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    /* Recording states */
+    .recording {
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="widget-root" class="w-full h-screen flex items-center justify-center p-4">
   <div class="glass-popup popup-enter rounded-3xl w-full max-w-lg relative overflow-hidden" style="min-height: 520px;">
-
     
     <!-- CLOSE BUTTON -->
-    <button id="close-btn" class="absolute top-4 right-4 text-white/60 hover:text-white text-2xl font-bold z-10 transition-colors">
+    <button onclick="closeWidget()" class="absolute top-4 right-4 text-white/60 hover:text-white text-2xl font-bold z-10 transition-colors">
       ×
     </button>
 
+    <!-- BACK BUTTON (shown in step 2) -->
+    <button id="backBtn" onclick="goBack()" class="absolute top-4 left-4 text-white/60 hover:text-white text-xl font-bold z-10 transition-colors hidden">
+      ← Back
+    </button>
+
     <!-- CONTENT AREA -->
-    <div class="p-8 pt-12">
-      
-      <!-- HEADLINE -->
-     <h2 class="text-white text-2xl font-bold text-center mb-8">
-  Share your feedback & earn £5
-</h2>
-
-      <!-- CAMPAIGN CONTENT AREA -->
-     <div class="bg-white/5 rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center border border-white/10">
-        <div class="text-center">
-          <div class="text-6xl mb-4">📊</div>
-          <p class="text-white/80 text-lg font-semibold mb-2">Rate our service</p>
-          <p class="text-white/50 text-sm">Quick 30-second poll</p>
-        </div>
-      </div>
-
-      <!-- CAROUSEL DOTS -->
-      <div class="flex justify-center gap-2 mb-6">
-        <div class="carousel-dot active h-2 w-6 rounded-full bg-[#CCFF66]"></div>
-        <div class="carousel-dot h-2 w-2 rounded-full bg-white/30"></div>
-        <div class="carousel-dot h-2 w-2 rounded-full bg-white/30"></div>
-      </div>
-
-      <!-- CTA BUTTON -->
-      <button class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-        Start & Earn £5 →
-      </button>
-
-      <!-- CAROUSEL ARROWS (Centered vertically on the card) -->
-      <div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
-        <button class="pointer-events-auto w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center text-white transition-all">
-          <span class="text-xl">←</span>
-        </button>
-        <button class="pointer-events-auto w-10 h-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center text-white transition-all">
-          <span class="text-xl">→</span>
-        </button>
-      </div>
-
+    <div id="content" class="p-8 pt-12">
+      <!-- Content will be dynamically injected here -->
     </div>
 
-    <!-- AMPHI BRANDING (subtle) -->
+    <!-- AMPHI BRANDING -->
     <div class="text-center pb-4 text-white/30 text-xs">
       Powered by AMPHI
     </div>
@@ -135,11 +137,409 @@
 </div>
 
 <script>
-  // Close button functionality
-  document.getElementById('close-btn').addEventListener('click', () => {
-    // Send message to parent window to minimize
-    window.parent.postMessage({ action: 'minimize' }, '*');
+// ============================================
+// STATE MANAGEMENT
+// ============================================
+let currentStep = 1; // 1 = carousel, 2 = form, 3 = email/stripe
+let currentCampaignIndex = 0;
+let currentQuestionIndex = 0;
+let formData = {};
+
+// DEMO CAMPAIGNS
+const campaigns = [
+  {
+    id: 1,
+    type: 'poll',
+    icon: '📊',
+    title: 'Rate our service',
+    description: 'Quick 2-minute poll',
+    reward: 5,
+    questions: [
+      {
+        question: 'How satisfied are you with our product?',
+        options: ['Very Satisfied', 'Satisfied', 'Neutral', 'Unsatisfied', 'Very Unsatisfied']
+      },
+      {
+        question: 'Would you recommend us to a friend?',
+        options: ['Definitely', 'Probably', 'Not Sure', 'Probably Not', 'Definitely Not']
+      }
+    ]
+  },
+  {
+    id: 2,
+    type: 'text_feedback',
+    icon: '💬',
+    title: 'Share your thoughts',
+    description: '3 quick questions',
+    reward: 8,
+    questions: [
+      'What do you love most about our product?',
+      'What could we improve?',
+      'Any other feedback for us?'
+    ]
+  },
+  {
+    id: 3,
+    type: 'video_upload',
+    icon: '🎥',
+    title: 'Record a video review',
+    description: 'Max 90 seconds',
+    reward: 15,
+    instructions: 'Tell us about your experience with our product!'
+  },
+  {
+    id: 4,
+    type: 'audio_upload',
+    icon: '🎤',
+    title: 'Voice feedback',
+    description: 'Max 60 seconds',
+    reward: 10,
+    instructions: 'Share your thoughts in a quick voice message'
+  },
+  {
+    id: 5,
+    type: 'image_upload',
+    icon: '📸',
+    title: 'Share a photo',
+    description: 'One quick photo',
+    reward: 5,
+    instructions: 'Take a photo of you using our product'
+  }
+];
+
+// ============================================
+// NAVIGATION
+// ============================================
+function goBack() {
+  if (currentStep === 2) {
+    currentStep = 1;
+    currentQuestionIndex = 0;
+    formData = {};
+    renderStep1();
+  }
+}
+
+function closeWidget() {
+  window.parent.postMessage({ action: 'minimize' }, '*');
+}
+
+function nextCampaign() {
+  currentCampaignIndex = (currentCampaignIndex + 1) % campaigns.length;
+  renderStep1();
+}
+
+function prevCampaign() {
+  currentCampaignIndex = (currentCampaignIndex - 1 + campaigns.length) % campaigns.length;
+  renderStep1();
+}
+
+function startCampaign() {
+  currentStep = 2;
+  currentQuestionIndex = 0;
+  formData = {};
+  renderStep2();
+}
+
+// ============================================
+// STEP 1: CAMPAIGN CAROUSEL
+// ============================================
+function renderStep1() {
+  document.getElementById('backBtn').classList.add('hidden');
+  const campaign = campaigns[currentCampaignIndex];
+  
+  let taskDetails = '';
+  if (campaign.type === 'poll') {
+    taskDetails = `${campaign.questions.length} quick questions`;
+  } else if (campaign.type === 'text_feedback') {
+    taskDetails = `${campaign.questions.length} text questions`;
+  } else if (campaign.type === 'video_upload') {
+    taskDetails = 'Record 90-second video';
+  } else if (campaign.type === 'audio_upload') {
+    taskDetails = 'Record 60-second audio';
+  } else if (campaign.type === 'image_upload') {
+    taskDetails = 'Upload 1 photo';
+  }
+
+  document.getElementById('content').innerHTML = `
+    <h2 class="text-white text-2xl font-bold text-center mb-8">
+      ${campaign.title} & earn £${campaign.reward}
+    </h2>
+
+    <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-6xl mb-4">${campaign.icon}</div>
+        <p class="text-white/80 text-lg font-semibold mb-2">${campaign.title}</p>
+        <p class="text-white/50 text-sm mb-1">${campaign.description}</p>
+        <p class="text-white/40 text-xs mt-2">${taskDetails}</p>
+      </div>
+    </div>
+
+    <div class="flex justify-center gap-2 mb-6">
+      ${campaigns.map((c, i) => `
+        <div class="carousel-dot ${i === currentCampaignIndex ? 'active' : 'h-2 w-2 rounded-full bg-white/30'}"></div>
+      `).join('')}
+    </div>
+
+    <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+      Start & Earn £${campaign.reward} →
+    </button>
+
+    ${campaigns.length > 1 ? `
+      <div class="absolute top-1/2 -translate-y-1/2 left-4 right-4 flex justify-between pointer-events-none">
+        <button onclick="prevCampaign()" class="pointer-events-auto arrow-btn w-10 h-10 rounded-full flex items-center justify-center text-white transition-all">
+          <span class="text-xl">←</span>
+        </button>
+        <button onclick="nextCampaign()" class="pointer-events-auto arrow-btn w-10 h-10 rounded-full flex items-center justify-center text-white transition-all">
+          <span class="text-xl">→</span>
+        </button>
+      </div>
+    ` : ''}
+  `;
+}
+
+// ============================================
+// STEP 2: CAMPAIGN FORM
+// ============================================
+function renderStep2() {
+  document.getElementById('backBtn').classList.remove('hidden');
+  const campaign = campaigns[currentCampaignIndex];
+
+  if (campaign.type === 'poll') {
+    renderPoll(campaign);
+  } else if (campaign.type === 'text_feedback') {
+    renderTextFeedback(campaign);
+  } else if (campaign.type === 'video_upload') {
+    renderVideoUpload(campaign);
+  } else if (campaign.type === 'audio_upload') {
+    renderAudioUpload(campaign);
+  } else if (campaign.type === 'image_upload') {
+    renderImageUpload(campaign);
+  }
+}
+
+// POLL
+function renderPoll(campaign) {
+  const question = campaign.questions[currentQuestionIndex];
+  const totalQuestions = campaign.questions.length;
+  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+
+  document.getElementById('content').innerHTML = `
+    <div class="text-center mb-4">
+      <div class="text-white/50 text-sm mb-2">Question ${currentQuestionIndex + 1} of ${totalQuestions}</div>
+      <h3 class="text-white text-xl font-bold">${question.question}</h3>
+    </div>
+
+    <div class="space-y-3 mb-6">
+      ${question.options.map((option, i) => `
+        <button onclick="selectPollOption(${i})" 
+                id="poll-option-${i}"
+                class="poll-option w-full py-4 px-6 rounded-xl text-white font-medium text-left">
+          ${option}
+        </button>
+      `).join('')}
+    </div>
+
+    <button id="nextBtn" onclick="${isLastQuestion ? 'submitPoll()' : 'nextPollQuestion()'}" 
+            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg opacity-50 cursor-not-allowed" 
+            disabled>
+      ${isLastQuestion ? 'Submit & Get Paid →' : 'Next Question →'}
+    </button>
+  `;
+}
+
+function selectPollOption(index) {
+  // Remove previous selection
+  document.querySelectorAll('.poll-option').forEach(btn => {
+    btn.classList.remove('selected');
   });
+  
+  // Mark as selected
+  document.getElementById(`poll-option-${index}`).classList.add('selected');
+  
+  // Save answer
+  const campaign = campaigns[currentCampaignIndex];
+  const question = campaign.questions[currentQuestionIndex];
+  formData[`question_${currentQuestionIndex}`] = question.options[index];
+  
+  // Enable next button
+  const nextBtn = document.getElementById('nextBtn');
+  nextBtn.disabled = false;
+  nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+}
+
+function nextPollQuestion() {
+  currentQuestionIndex++;
+  renderStep2();
+}
+
+function submitPoll() {
+  console.log('Poll submitted:', formData);
+  renderStep3();
+}
+
+// TEXT FEEDBACK
+function renderTextFeedback(campaign) {
+  const question = campaign.questions[currentQuestionIndex];
+  const totalQuestions = campaign.questions.length;
+  const isLastQuestion = currentQuestionIndex === totalQuestions - 1;
+
+  document.getElementById('content').innerHTML = `
+    <div class="text-center mb-4">
+      <div class="text-white/50 text-sm mb-2">Question ${currentQuestionIndex + 1} of ${totalQuestions}</div>
+      <h3 class="text-white text-xl font-bold mb-6">${question}</h3>
+    </div>
+
+    <textarea id="textInput" 
+              onkeyup="checkTextInput()"
+              placeholder="Type your answer here..." 
+              rows="6" 
+              maxlength="500"
+              class="w-full p-4 rounded-xl mb-2 resize-none"></textarea>
+    
+    <div class="text-white/40 text-xs text-right mb-6">
+      <span id="charCount">0</span>/500 characters
+    </div>
+
+    <button id="nextBtn" onclick="${isLastQuestion ? 'submitText()' : 'nextTextQuestion()'}" 
+            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg opacity-50 cursor-not-allowed" 
+            disabled>
+      ${isLastQuestion ? 'Submit & Get Paid →' : 'Next Question →'}
+    </button>
+  `;
+}
+
+function checkTextInput() {
+  const input = document.getElementById('textInput');
+  const count = input.value.length;
+  document.getElementById('charCount').textContent = count;
+  
+  const nextBtn = document.getElementById('nextBtn');
+  if (count > 10) {
+    formData[`question_${currentQuestionIndex}`] = input.value;
+    nextBtn.disabled = false;
+    nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+  } else {
+    nextBtn.disabled = true;
+    nextBtn.classList.add('opacity-50', 'cursor-not-allowed');
+  }
+}
+
+function nextTextQuestion() {
+  currentQuestionIndex++;
+  renderStep2();
+}
+
+function submitText() {
+  console.log('Text submitted:', formData);
+  renderStep3();
+}
+
+// VIDEO UPLOAD
+function renderVideoUpload(campaign) {
+  document.getElementById('content').innerHTML = `
+    <div class="text-center mb-6">
+      <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
+      <p class="text-white/60 text-sm">${campaign.instructions}</p>
+    </div>
+
+    <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-6xl mb-4">🎥</div>
+        <p class="text-white/80 text-lg font-semibold mb-2">Ready to record?</p>
+        <p class="text-white/50 text-sm">Max 90 seconds</p>
+      </div>
+    </div>
+
+    <button onclick="alert('Video recording would start here! (Coming in next iteration)')" 
+            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+      🎥 Start Recording
+    </button>
+  `;
+}
+
+// AUDIO UPLOAD
+function renderAudioUpload(campaign) {
+  document.getElementById('content').innerHTML = `
+    <div class="text-center mb-6">
+      <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
+      <p class="text-white/60 text-sm">${campaign.instructions}</p>
+    </div>
+
+    <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-6xl mb-4">🎤</div>
+        <p class="text-white/80 text-lg font-semibold mb-2">Ready to record?</p>
+        <p class="text-white/50 text-sm">Max 60 seconds</p>
+      </div>
+    </div>
+
+    <button onclick="alert('Audio recording would start here! (Coming in next iteration)')" 
+            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+      🎤 Start Recording
+    </button>
+  `;
+}
+
+// IMAGE UPLOAD
+function renderImageUpload(campaign) {
+  document.getElementById('content').innerHTML = `
+    <div class="text-center mb-6">
+      <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
+      <p class="text-white/60 text-sm">${campaign.instructions}</p>
+    </div>
+
+    <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
+      <div class="text-center">
+        <div class="text-6xl mb-4">📸</div>
+        <p class="text-white/80 text-lg font-semibold mb-2">Upload a photo</p>
+        <p class="text-white/50 text-sm">JPG, PNG, or HEIC</p>
+      </div>
+    </div>
+
+    <button onclick="alert('Image upload would start here! (Coming in next iteration)')" 
+            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+      📸 Take Photo / Upload
+    </button>
+  `;
+}
+
+// ============================================
+// STEP 3: EMAIL + STRIPE (Placeholder)
+// ============================================
+function renderStep3() {
+  document.getElementById('backBtn').classList.add('hidden');
+  const campaign = campaigns[currentCampaignIndex];
+
+  document.getElementById('content').innerHTML = `
+    <div class="text-center mb-6">
+      <div class="text-6xl mb-4">🎉</div>
+      <h3 class="text-white text-2xl font-bold mb-2">Great job!</h3>
+      <p class="text-white/70 text-sm mb-6">You've completed the task</p>
+    </div>
+
+    <div class="campaign-area rounded-2xl p-6 mb-6">
+      <p class="text-white/80 text-center mb-4">Enter your email to receive payment:</p>
+      <input type="email" 
+             id="emailInput"
+             placeholder="your@email.com" 
+             class="w-full p-3 rounded-xl mb-4">
+    </div>
+
+    <button onclick="alert('Next: Stripe Connect integration! (Coming soon)')" 
+            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+      Continue to Bank Link →
+    </button>
+
+    <p class="text-white/40 text-xs text-center mt-4">
+      You'll receive £${campaign.reward} within 24-48 hours after approval
+    </p>
+  `;
+}
+
+// ============================================
+// INIT
+// ============================================
+renderStep1();
 </script>
 
 </body>
