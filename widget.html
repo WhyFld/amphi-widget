@@ -469,6 +469,12 @@ async function submitPoll() {
   
   const campaign = campaigns[currentCampaignIndex];
   
+  // Build readable text content from poll answers
+  let textContent = '';
+  Object.values(formData).forEach((item, index) => {
+    textContent += `Q${index + 1}: ${item.question}\nA: ${item.answer}\n\n`;
+  });
+  
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
@@ -482,9 +488,10 @@ async function submitPoll() {
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'poll',
+        text_content: textContent.trim(),
         survey_responses: formData,
         status: 'pending',
-        customer_email: 'test@example.com' // Will be replaced with real email in Step 3
+        customer_email: 'test@example.com'
       })
     });
 
@@ -501,7 +508,6 @@ async function submitPoll() {
     alert('Submission failed. Please try again.');
   }
 }
-
 // TEXT FEEDBACK
 function renderTextFeedback(campaign) {
   const question = campaign.questions[currentQuestionIndex];
@@ -565,6 +571,12 @@ async function submitText() {
   
   const campaign = campaigns[currentCampaignIndex];
   
+  // Build readable text content from all answers
+  let textContent = '';
+  Object.values(formData).forEach((item, index) => {
+    textContent += `Q${index + 1}: ${item.question}\nA: ${item.answer}\n\n`;
+  });
+  
   try {
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
@@ -578,6 +590,7 @@ async function submitText() {
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'text_feedback',
+        text_content: textContent.trim(),
         survey_responses: formData,
         status: 'pending',
         customer_email: 'test@example.com'
@@ -598,6 +611,7 @@ async function submitText() {
   }
 }
 
+  
 // VIDEO/AUDIO/IMAGE (Placeholders for now)
 function renderVideoUpload(campaign) {
   document.getElementById('content').innerHTML = `
