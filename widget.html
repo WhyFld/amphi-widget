@@ -13,7 +13,7 @@
     }
 
     .glass-popup {
-  background: rgba(0, 0, 0, 0.40);
+      background: rgba(0, 0, 0, 0.40);
       backdrop-filter: blur(40px) saturate(180%);
       -webkit-backdrop-filter: blur(40px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.18);
@@ -48,7 +48,6 @@
       animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    /* Carousel slide animations */
     @keyframes slideInFromRight {
       from {
         opacity: 0;
@@ -91,7 +90,6 @@
       box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
     }
 
-    /* Arrows - firmly positioned outside content area */
     .arrow-btn {
       position: absolute;
       top: 50%;
@@ -117,14 +115,13 @@
     }
 
     .arrow-btn.left {
-      left: 2px;
+      left: 8px;
     }
 
     .arrow-btn.right {
-      right: 2px;
+      right: 8px;
     }
 
-    /* Poll option buttons */
     .poll-option {
       background: rgba(255, 255, 255, 0.1);
       border: 2px solid rgba(255, 255, 255, 0.2);
@@ -139,7 +136,6 @@
       border-color: #CCFF66;
     }
 
-    /* Text input styling */
     textarea, input[type="text"], input[type="email"] {
       background: rgba(255, 255, 255, 0.1);
       border: 1px solid rgba(255, 255, 255, 0.2);
@@ -154,8 +150,7 @@
       color: rgba(255, 255, 255, 0.4);
     }
 
-    /* Recording states */
-    .recording {
+    .loading {
       animation: pulse 1.5s infinite;
     }
     @keyframes pulse {
@@ -169,17 +164,14 @@
 <div id="widget-root" class="w-full h-screen flex items-center justify-center p-4">
   <div class="glass-popup popup-enter rounded-3xl w-full max-w-lg relative overflow-hidden" style="min-height: 520px;">
     
-    <!-- CLOSE BUTTON -->
     <button onclick="closeWidget()" class="absolute top-4 right-4 text-white/60 hover:text-white text-2xl font-bold z-10 transition-colors">
       ×
     </button>
 
-    <!-- BACK BUTTON (shown in step 2) -->
     <button id="backBtn" onclick="goBack()" class="absolute top-4 left-4 text-white/60 hover:text-white text-xl font-bold z-10 transition-colors hidden">
       ← Back
     </button>
 
-    <!-- ARROW BUTTONS (shown in step 1 only) -->
     <button id="leftArrow" onclick="prevCampaign()" class="arrow-btn left hidden">
       <span class="text-xl">←</span>
     </button>
@@ -187,12 +179,13 @@
       <span class="text-xl">→</span>
     </button>
 
-    <!-- CONTENT AREA -->
     <div id="content" class="p-8 pt-12">
-      <!-- Content will be dynamically injected here -->
+      <div class="text-center">
+        <div class="text-4xl mb-4 loading">⏳</div>
+        <p class="text-white/70">Loading campaigns...</p>
+      </div>
     </div>
 
-    <!-- AMPHI BRANDING -->
     <div class="text-center pb-4 text-white/30 text-xs">
       Powered by AMPHI
     </div>
@@ -202,74 +195,101 @@
 
 <script>
 // ============================================
+// SUPABASE CONNECTION
+// ============================================
+const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
+const BRAND_ID = '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2'; // Your test brand
+
+// ============================================
 // STATE MANAGEMENT
 // ============================================
 let currentStep = 1;
 let currentCampaignIndex = 0;
 let currentQuestionIndex = 0;
 let formData = {};
+let campaigns = [];
 
-// DEMO CAMPAIGNS
-const campaigns = [
-  {
-    id: 1,
-    type: 'poll',
-    icon: '📊',
-    title: 'Rate our service',
-    description: 'Quick 2-minute poll',
-    reward: 5,
-    questions: [
+// ============================================
+// FETCH CAMPAIGNS FROM SUPABASE
+// ============================================
+async function loadCampaigns() {
+  try {
+    const response = await fetch(
+      `${SUPABASE_URL}/rest/v1/tasks?brand_id=eq.${BRAND_ID}&is_active=eq.true&select=*`,
       {
-        question: 'How satisfied are you with our product?',
-        options: ['Very Satisfied', 'Satisfied', 'Neutral', 'Unsatisfied', 'Very Unsatisfied']
-      },
-      {
-        question: 'Would you recommend us to a friend?',
-        options: ['Definitely', 'Probably', 'Not Sure', 'Probably Not', 'Definitely Not']
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
       }
-    ]
-  },
-  {
-    id: 2,
-    type: 'text_feedback',
-    icon: '💬',
-    title: 'Share your thoughts',
-    description: '3 quick questions',
-    reward: 8,
-    questions: [
-      'What do you love most about our product?',
-      'What could we improve?',
-      'Any other feedback for us?'
-    ]
-  },
-  {
-    id: 3,
-    type: 'video_upload',
-    icon: '🎥',
-    title: 'Record a video review',
-    description: 'Max 90 seconds',
-    reward: 15,
-    instructions: 'Tell us about your experience with our product!'
-  },
-  {
-    id: 4,
-    type: 'audio_upload',
-    icon: '🎤',
-    title: 'Voice feedback',
-    description: 'Max 60 seconds',
-    reward: 10,
-    instructions: 'Share your thoughts in a quick voice message'
-  },
-  {
-    id: 5,
-    type: 'image_upload',
-    icon: '📸',
-    title: 'Share a photo',
-    description: 'One quick photo',
-    reward: 5,
-    instructions: 'Take a photo of you using our product'
+    );
+
+    const data = await response.json();
+    
+    if (!data || data.length === 0) {
+      showError('No active campaigns found');
+      return;
+    }
+
+    // Transform Supabase data to widget format
+    campaigns = data.map(task => {
+      const campaign = {
+        id: task.id,
+        type: task.task_type,
+        title: task.title,
+        description: task.description,
+        reward: task.reward_amount,
+        icon: getIconForType(task.task_type)
+      };
+
+      // Parse required_fields for polls and text_feedback
+      if (task.required_fields) {
+        if (task.task_type === 'poll') {
+          campaign.questions = task.required_fields.map(field => ({
+            question: field.question,
+            options: field.options
+          }));
+        } else if (task.task_type === 'text_feedback') {
+          campaign.questions = task.required_fields.map(field => field.question);
+        }
+      }
+
+      if (task.instructions_text) {
+        campaign.instructions = task.instructions_text;
+      }
+
+      return campaign;
+    });
+
+    console.log('✅ Loaded campaigns:', campaigns);
+    renderStep1();
+
+  } catch (error) {
+    console.error('❌ Failed to load campaigns:', error);
+    showError('Failed to load campaigns');
   }
-];
+}
+
+function getIconForType(type) {
+  const icons = {
+    'poll': '📊',
+    'text_feedback': '💬',
+    'video_upload': '🎥',
+    'audio_upload': '🎤',
+    'image_upload': '📸'
+  };
+  return icons[type] || '📋';
+}
+
+function showError(message) {
+  document.getElementById('content').innerHTML = `
+    <div class="text-center">
+      <div class="text-4xl mb-4">⚠️</div>
+      <p class="text-white/70">${message}</p>
+    </div>
+  `;
+}
 
 // ============================================
 // NAVIGATION
@@ -318,7 +338,6 @@ function startCampaign() {
 function renderStep1() {
   document.getElementById('backBtn').classList.add('hidden');
   
-  // Show/hide arrows
   if (campaigns.length > 1) {
     document.getElementById('leftArrow').classList.remove('hidden');
     document.getElementById('rightArrow').classList.remove('hidden');
@@ -430,7 +449,10 @@ function selectPollOption(index) {
   
   const campaign = campaigns[currentCampaignIndex];
   const question = campaign.questions[currentQuestionIndex];
-  formData[`question_${currentQuestionIndex}`] = question.options[index];
+  formData[`question_${currentQuestionIndex}`] = {
+    question: question.question,
+    answer: question.options[index]
+  };
   
   const nextBtn = document.getElementById('nextBtn');
   nextBtn.disabled = false;
@@ -442,9 +464,42 @@ function nextPollQuestion() {
   renderStep2();
 }
 
-function submitPoll() {
-  console.log('Poll submitted:', formData);
-  renderStep3();
+async function submitPoll() {
+  console.log('📊 Submitting poll:', formData);
+  
+  const campaign = campaigns[currentCampaignIndex];
+  
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        task_id: campaign.id,
+        brand_id: BRAND_ID,
+        submission_type: 'poll',
+        survey_responses: formData,
+        status: 'pending',
+        customer_email: 'test@example.com' // Will be replaced with real email in Step 3
+      })
+    });
+
+    if (response.ok) {
+      console.log('✅ Poll submitted successfully!');
+      renderStep3();
+    } else {
+      const error = await response.json();
+      console.error('❌ Submission failed:', error);
+      alert('Submission failed. Please try again.');
+    }
+  } catch (error) {
+    console.error('❌ Submission error:', error);
+    alert('Submission failed. Please try again.');
+  }
 }
 
 // TEXT FEEDBACK
@@ -483,9 +538,15 @@ function checkTextInput() {
   const count = input.value.length;
   document.getElementById('charCount').textContent = count;
   
+  const campaign = campaigns[currentCampaignIndex];
+  const question = campaign.questions[currentQuestionIndex];
+  
   const nextBtn = document.getElementById('nextBtn');
   if (count > 10) {
-    formData[`question_${currentQuestionIndex}`] = input.value;
+    formData[`question_${currentQuestionIndex}`] = {
+      question: question,
+      answer: input.value
+    };
     nextBtn.disabled = false;
     nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
   } else {
@@ -499,17 +560,50 @@ function nextTextQuestion() {
   renderStep2();
 }
 
-function submitText() {
-  console.log('Text submitted:', formData);
-  renderStep3();
+async function submitText() {
+  console.log('💬 Submitting text feedback:', formData);
+  
+  const campaign = campaigns[currentCampaignIndex];
+  
+  try {
+    const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: JSON.stringify({
+        task_id: campaign.id,
+        brand_id: BRAND_ID,
+        submission_type: 'text_feedback',
+        survey_responses: formData,
+        status: 'pending',
+        customer_email: 'test@example.com'
+      })
+    });
+
+    if (response.ok) {
+      console.log('✅ Text feedback submitted successfully!');
+      renderStep3();
+    } else {
+      const error = await response.json();
+      console.error('❌ Submission failed:', error);
+      alert('Submission failed. Please try again.');
+    }
+  } catch (error) {
+    console.error('❌ Submission error:', error);
+    alert('Submission failed. Please try again.');
+  }
 }
 
-// VIDEO UPLOAD
+// VIDEO/AUDIO/IMAGE (Placeholders for now)
 function renderVideoUpload(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
       <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
-      <p class="text-white/60 text-sm">${campaign.instructions}</p>
+      <p class="text-white/60 text-sm">${campaign.instructions || 'Record your video'}</p>
     </div>
 
     <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
@@ -520,19 +614,18 @@ function renderVideoUpload(campaign) {
       </div>
     </div>
 
-    <button onclick="alert('Video recording would start here! (Coming in next iteration)')" 
+    <button onclick="alert('Video recording coming next!')" 
             class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
       🎥 Start Recording
     </button>
   `;
 }
 
-// AUDIO UPLOAD
 function renderAudioUpload(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
       <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
-      <p class="text-white/60 text-sm">${campaign.instructions}</p>
+      <p class="text-white/60 text-sm">${campaign.instructions || 'Record your audio'}</p>
     </div>
 
     <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
@@ -543,19 +636,18 @@ function renderAudioUpload(campaign) {
       </div>
     </div>
 
-    <button onclick="alert('Audio recording would start here! (Coming in next iteration)')" 
+    <button onclick="alert('Audio recording coming next!')" 
             class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
       🎤 Start Recording
     </button>
   `;
 }
 
-// IMAGE UPLOAD
 function renderImageUpload(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
       <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
-      <p class="text-white/60 text-sm">${campaign.instructions}</p>
+      <p class="text-white/60 text-sm">${campaign.instructions || 'Upload your photo'}</p>
     </div>
 
     <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
@@ -566,7 +658,7 @@ function renderImageUpload(campaign) {
       </div>
     </div>
 
-    <button onclick="alert('Image upload would start here! (Coming in next iteration)')" 
+    <button onclick="alert('Image upload coming next!')" 
             class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
       📸 Take Photo / Upload
     </button>
@@ -609,9 +701,9 @@ function renderStep3() {
 }
 
 // ============================================
-// INIT
+// INIT: Load campaigns on startup
 // ============================================
-renderStep1();
+loadCampaigns();
 </script>
 
 </body>
