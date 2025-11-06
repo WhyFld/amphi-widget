@@ -687,6 +687,7 @@ function renderStep3() {
   document.getElementById('leftArrow').classList.add('hidden');
   document.getElementById('rightArrow').classList.add('hidden');
   const campaign = campaigns[currentCampaignIndex];
+  const submission = formData; // Keep submission data
 
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
@@ -701,9 +702,10 @@ function renderStep3() {
              id="emailInput"
              placeholder="your@email.com" 
              class="w-full p-3 rounded-xl mb-4">
+      <div id="errorMsg" class="text-red-400 text-sm mb-2 hidden"></div>
     </div>
 
-    <button onclick="alert('Next: Stripe Connect integration! (Coming soon)')" 
+    <button id="connectBtn" onclick="handleStripeConnect()" 
             class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
       Continue to Bank Link →
     </button>
@@ -714,6 +716,79 @@ function renderStep3() {
   `;
 }
 
+async function handleStripeConnect() {
+  const email = document.getElementById('emailInput').value.trim();
+  const errorMsg = document.getElementById('errorMsg');
+  const btn = document.getElementById('connectBtn');
+
+  // Validate email
+  if (!email || !email.includes('@')) {
+    errorMsg.textContent = 'Please enter a valid email address';
+    errorMsg.classList.remove('hidden');
+    return;
+  }
+
+  // Hide error, disable button
+  errorMsg.classList.add('hidden');
+  btn.disabled = true;
+  btn.textContent = 'Creating account...';
+
+  try {
+    // Get the last submission ID (we'll need this for tracking)
+    const campaign = campaigns[currentCampaignIndex];
+    
+    // Call API to create Stripe account
+    const response = await fetch('https://amphi-dashboard.vercel.app/api/create-stripe-account', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        email: email,
+        submissionId: 'pending' // We'll improve this later
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.message || 'Failed to create account');
+    }
+
+    if (data.alreadyOnboarded) {
+      // User already has bank linked
+      showSuccessScreen();
+    } else if (data.onboardingUrl) {
+      // Redirect to Stripe onboarding
+      console.log('✅ Redirecting to Stripe:', data.onboardingUrl);
+      window.location.href = data.onboardingUrl;
+    }
+
+  } catch (error) {
+    console.error('❌ Stripe Connect error:', error);
+    errorMsg.textContent = error.message || 'Failed to create account. Please try again.';
+    errorMsg.classList.remove('hidden');
+    btn.disabled = false;
+    btn.textContent = 'Continue to Bank Link →';
+  }
+}
+
+function showSuccessScreen() {
+  const campaign = campaigns[currentCampaignIndex];
+  
+  document.getElementById('content').innerHTML = `
+    <div class="text-center">
+      <div class="text-6xl mb-4">✅</div>
+      <h3 class="text-white text-2xl font-bold mb-2">All set!</h3>
+      <p class="text-white/70 text-sm mb-6">
+        Your submission has been received and your bank account is linked.
+      </p>
+      <p class="text-white/60 text-sm">
+        You'll receive £${campaign.reward} within 24-48 hours after approval.
+      </p>
+    </div>
+  `;
+}
 // ============================================
 // INIT: Load campaigns on startup
 // ============================================
