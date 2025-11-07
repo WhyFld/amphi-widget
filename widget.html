@@ -5,13 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AMPHI Widget</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script src="https://js.stripe.com/connect/v2/embedded"></script>
   <script>
-  // Stripe exposes global StripeConnectEmbedded
-  window.loadStripeConnect = function(opts) {
-    return Promise.resolve(StripeConnectEmbedded(opts));
-  };
-  </script>
+  // Lazy-load Stripe Connect SDK only when user clicks "Continue"
+  async function ensureStripeConnectLoaded() {
+    if (window.StripeConnectEmbedded) {
+      return window.StripeConnectEmbedded;
+    }
+    
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = 'https://js.stripe.com/connect/v2/embedded';
+      script.onload = () => {
+        window.loadStripeConnect = (opts) => Promise.resolve(StripeConnectEmbedded(opts));
+        resolve(StripeConnectEmbedded);
+      };
+      script.onerror = () => {
+        console.error('Failed to load Stripe SDK');
+        alert('Failed to load secure banking form. Please refresh.');
+      };
+      document.head.appendChild(script);
+    });
+  }
+</script>
   <style>
     body {
       margin: 0;
@@ -761,6 +776,7 @@ async function handleStripeConnect() {
     document.getElementById('connectBtn').classList.add('hidden');
     document.getElementById('stripe-onboarding').classList.remove('hidden');
 
+    await ensureStripeConnectLoaded();  // ← THIS IS THE NEW LINE
     const stripeConnect = await window.loadStripeConnect({ publishableKey: data.publishableKey });
 
     const element = stripeConnect.createElement('account-onboarding', {
