@@ -791,6 +791,31 @@ async function handleStripeConnect() {
       throw new Error(data.message || 'Failed to create account');
     }
 
+    // Update the most recent submission with the real email
+const campaign = campaigns[currentCampaignIndex];
+
+const updateSubmission = await fetch(
+  `${SUPABASE_URL}/rest/v1/submissions?task_id=eq.${campaign.id}&customer_email=eq.test@example.com&order=created_at.desc&limit=1`,
+  {
+    method: 'PATCH',
+    headers: {
+      'apikey': SUPABASE_KEY,
+      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Content-Type': 'application/json',
+      'Prefer': 'return=minimal'
+    },
+    body: JSON.stringify({
+      customer_email: email
+    })
+  }
+);
+
+if (!updateSubmission.ok) {
+  console.error('Failed to update submission with real email');
+}
+
+console.log('✅ Updated submission with real email:', email);
+    
     if (data.alreadyOnboarded) {
       showSuccessScreen();
     } else if (data.onboardingUrl) {
