@@ -165,9 +165,9 @@
 <div id="widget-root" class="w-full h-screen flex items-center justify-center p-4">
   <div class="glass-popup popup-enter rounded-3xl w-full max-w-lg relative overflow-hidden" style="min-height: 520px;">
     
-    <button onclick="closeWidget()" class="absolute top-4 right-4 text-white/60 hover:text-white text-2xl font-bold z-10 transition-colors">
-      ×
-    </button>
+<button onclick="minimizeWidget()" class="absolute top-4 right-4 text-white/60 hover:text-white text-2xl font-bold w-8 h-8 flex items-center justify-center transition-all hover:scale-110 z-50">
+  ×
+</button>
 
     <button id="backBtn" onclick="goBack()" class="absolute top-4 left-4 text-white/60 hover:text-white text-xl font-bold z-10 transition-colors hidden">
       ← Back
@@ -194,6 +194,17 @@
   </div>
 </div>
 
+<div id="minimizedIcon" class="hidden fixed bottom-6 right-6 z-50 cursor-pointer group" onclick="restoreWidget()">
+  <div class="relative">
+    <!-- Icon Circle -->
+    <div class="w-16 h-16 rounded-full bg-[#CCFF66] flex items-center justify-center shadow-2xl transform transition-all duration-300 group-hover:scale-110">
+      <span class="text-3xl">💬</span>
+    </div>
+    <!-- Pulse Animation -->
+    <div class="absolute inset-0 rounded-full bg-[#CCFF66] opacity-20 animate-ping"></div>
+  </div>
+</div>
+  
 <script>
 // ============================================
 // SUPABASE CONNECTION
@@ -359,7 +370,7 @@ function goBack() {
 }
 
 function closeWidget() {
-  window.parent.postMessage({ action: 'minimize' }, '*');
+  minimizeWidget();
 }
 
 function nextCampaign() {
@@ -912,7 +923,55 @@ function showSuccessScreen() {
     </div>
   `;
 }
+
+function minimizeWidget() {
+  // Hide main widget with fade out
+  const widget = document.getElementById('widget');
+  widget.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+  widget.style.opacity = '0';
+  widget.style.transform = 'scale(0.9)';
   
+  setTimeout(() => {
+    widget.classList.add('hidden');
+    // Show minimized icon
+    const icon = document.getElementById('minimizedIcon');
+    icon.classList.remove('hidden');
+    icon.style.opacity = '0';
+    icon.style.transform = 'scale(0.5)';
+    
+    // Animate in
+    setTimeout(() => {
+      icon.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      icon.style.opacity = '1';
+      icon.style.transform = 'scale(1)';
+    }, 50);
+  }, 300);
+}
+
+function restoreWidget() {
+  // Hide icon
+  const icon = document.getElementById('minimizedIcon');
+  icon.style.opacity = '0';
+  icon.style.transform = 'scale(0.5)';
+  
+  setTimeout(() => {
+    icon.classList.add('hidden');
+    
+    // Show widget
+    const widget = document.getElementById('widget');
+    widget.classList.remove('hidden');
+    widget.style.opacity = '0';
+    widget.style.transform = 'scale(0.9)';
+    
+    // Animate in
+    setTimeout(() => {
+      widget.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      widget.style.opacity = '1';
+      widget.style.transform = 'scale(1)';
+    }, 50);
+  }, 300);
+}
+ 
   function showFinalSuccess() {
   document.getElementById('backBtn').classList.add('hidden');
   document.getElementById('leftArrow').classList.add('hidden');
