@@ -949,7 +949,6 @@ function minimizeWidget() {
 }
 
 function restoreWidget() {
-  // Hide icon
   const icon = document.getElementById('minimizedIcon');
   icon.style.opacity = '0';
   icon.style.transform = 'scale(0.5)';
@@ -957,13 +956,15 @@ function restoreWidget() {
   setTimeout(() => {
     icon.classList.add('hidden');
     
-    // Show widget
-    const widget = document.getElementById('widget-root'); // ← Changed!
+    const widget = document.getElementById('widget-root');
     widget.classList.remove('hidden');
     widget.style.opacity = '0';
     widget.style.transform = 'scale(0.9)';
     
-    // Animate in
+    // Reset to show available campaigns
+    currentCampaignIndex = 0;
+    renderStep1();
+    
     setTimeout(() => {
       widget.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
       widget.style.opacity = '1';
@@ -971,7 +972,7 @@ function restoreWidget() {
     }, 50);
   }, 300);
 }
- 
+  
 function showFinalSuccess() {
   document.getElementById('backBtn').classList.add('hidden');
   document.getElementById('leftArrow').classList.add('hidden');
