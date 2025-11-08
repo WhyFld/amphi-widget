@@ -972,7 +972,7 @@ function restoreWidget() {
   }, 300);
 }
  
-  function showFinalSuccess() {
+function showFinalSuccess() {
   document.getElementById('backBtn').classList.add('hidden');
   document.getElementById('leftArrow').classList.add('hidden');
   document.getElementById('rightArrow').classList.add('hidden');
@@ -990,13 +990,16 @@ function restoreWidget() {
           The brand will review your submission. Once approved, you'll receive your payment within 24-48 hours.
         </p>
       </div>
-      <button onclick="closeWidget()" 
-              class="w-full py-3 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all">
-        Close
-      </button>
+      <p class="text-white/40 text-sm">Minimizing in 3 seconds...</p>
     </div>
   `;
+  
+  // Auto-minimize after 3 seconds
+  setTimeout(() => {
+    minimizeWidget();
+  }, 3000);
 }
+  
 // ============================================
 // INIT: Load campaigns on startup
 // ============================================
