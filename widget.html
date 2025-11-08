@@ -845,22 +845,21 @@ const updateSubmission = await fetch(
 
 if (!updateSubmission.ok) {
   console.error('Failed to update submission with real email');
+} else {
+  console.log('✅ Updated submission with real email:', email);
 }
 
-console.log('✅ Updated submission with real email:', email);
-
+// Mark campaign as completed
 markCampaignCompleted(campaign.id);
 
+// Handle onboarding or success
 if (data.alreadyOnboarded) {
   showSuccessScreen();
+} else if (data.onboardingUrl) {
+  console.log('✅ Redirecting to Stripe');
+  window.location.href = data.onboardingUrl;
+}
     
-    if (data.alreadyOnboarded) {
-      showSuccessScreen();
-    } else if (data.onboardingUrl) {
-      console.log('✅ Redirecting to Stripe');
-      window.location.href = data.onboardingUrl;
-    }
-
   } catch (error) {
     console.error('❌ Error:', error);
     
@@ -877,6 +876,7 @@ if (data.alreadyOnboarded) {
     `;
   }
 }
+  
 function showSuccessScreen() {
   const campaign = campaigns[currentCampaignIndex];
   
