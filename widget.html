@@ -926,7 +926,7 @@ function showSuccessScreen() {
 
 function minimizeWidget() {
   // Hide main widget with fade out
-  const widget = document.getElementById('widget');
+  const widget = document.getElementById('widget-root');
   widget.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
   widget.style.opacity = '0';
   widget.style.transform = 'scale(0.9)';
@@ -958,7 +958,7 @@ function restoreWidget() {
     icon.classList.add('hidden');
     
     // Show widget
-    const widget = document.getElementById('widget');
+    const widget = document.getElementById('widget-root'); // ← Changed!
     widget.classList.remove('hidden');
     widget.style.opacity = '0';
     widget.style.transform = 'scale(0.9)';
