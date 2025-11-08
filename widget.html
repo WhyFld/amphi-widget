@@ -202,6 +202,26 @@ const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
 const BRAND_ID = '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2'; // Your test brand
 
+// Track completed campaigns in localStorage
+function getCompletedCampaigns() {
+  const completed = localStorage.getItem('amphi_completed_campaigns');
+  return completed ? JSON.parse(completed) : [];
+}
+
+function markCampaignCompleted(campaignId) {
+  const completed = getCompletedCampaigns();
+  if (!completed.includes(campaignId)) {
+    completed.push(campaignId);
+    localStorage.setItem('amphi_completed_campaigns', JSON.stringify(completed));
+  }
+}
+
+function isCampaignCompleted(campaignId) {
+  return getCompletedCampaigns().includes(campaignId);
+}
+
+
+  
 // ============================================
 // STATE MANAGEMENT
 // ============================================
@@ -264,6 +284,19 @@ async function loadCampaigns() {
     });
 
     console.log('✅ Loaded campaigns:', campaigns);
+
+     // Filter out campaigns user has already completed
+    const completedIds = getCompletedCampaigns();
+    campaigns = campaigns.filter(c => !completedIds.includes(c.id));
+
+    console.log('✅ Available campaigns (after filtering completed):', campaigns);
+
+    if (campaigns.length === 0) {
+      showNoMoreCampaigns();
+      return;
+    }
+
+    
     // Check if returning from Stripe
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
@@ -815,6 +848,11 @@ if (!updateSubmission.ok) {
 }
 
 console.log('✅ Updated submission with real email:', email);
+
+markCampaignCompleted(campaign.id);
+
+if (data.alreadyOnboarded) {
+  showSuccessScreen();
     
     if (data.alreadyOnboarded) {
       showSuccessScreen();
@@ -856,6 +894,25 @@ function showSuccessScreen() {
   `;
 }
 
+  function showNoMoreCampaigns() {
+  document.getElementById('backBtn').classList.add('hidden');
+  document.getElementById('leftArrow').classList.add('hidden');
+  document.getElementById('rightArrow').classList.add('hidden');
+  
+  document.getElementById('content').innerHTML = `
+    <div class="text-center">
+      <div class="text-6xl mb-6">✅</div>
+      <h2 class="text-white text-2xl font-bold mb-4">You're all caught up!</h2>
+      <p class="text-white/70 text-lg mb-6">
+        You've completed all available campaigns.
+      </p>
+      <p class="text-white/50 text-sm">
+        Check back later for new opportunities to earn rewards!
+      </p>
+    </div>
+  `;
+}
+  
   function showFinalSuccess() {
   document.getElementById('backBtn').classList.add('hidden');
   document.getElementById('leftArrow').classList.add('hidden');
