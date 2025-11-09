@@ -173,12 +173,6 @@
       ← Back
     </button>
 
-    <button id="leftArrow" onclick="prevCampaign()" class="arrow-btn left hidden">
-      <span class="text-xl">←</span>
-    </button>
-    <button id="rightArrow" onclick="nextCampaign()" class="arrow-btn right hidden">
-      <span class="text-xl">→</span>
-    </button>
 
     <div id="content" class="p-8 pt-12">
       <div class="text-center">
@@ -237,7 +231,6 @@ function isCampaignCompleted(campaignId) {
 // STATE MANAGEMENT
 // ============================================
 let currentStep = 1;
-let currentCampaignIndex = 0;
 let currentQuestionIndex = 0;
 let formData = {};
 let campaigns = [];
@@ -264,48 +257,31 @@ async function loadCampaigns() {
       return;
     }
 
-    // Transform Supabase data to widget format
-    campaigns = data.map(task => {
-      const campaign = {
-        id: task.id,
-        type: task.task_type,
-        title: task.title,
-        description: task.description,
-        reward: task.reward_amount,
-        icon: getIconForType(task.task_type)
-      };
+    // Get only the first active campaign
+if (!data || data.length === 0) {
+  console.log('❌ No active campaigns');
+  document.getElementById('widget-root').style.display = 'none';
+  return;
+}
 
-      // Parse required_fields for polls and text_feedback
-      if (task.required_fields) {
-        if (task.task_type === 'poll') {
-          campaign.questions = task.required_fields.map(field => ({
-            question: field.question,
-            options: field.options
-          }));
-        } else if (task.task_type === 'text_feedback') {
-          campaign.questions = task.required_fields.map(field => field.question);
-        }
-      }
+// Just take the first one
+const campaign = data[0];
 
-      if (task.instructions_text) {
-        campaign.instructions = task.instructions_text;
-      }
+campaigns = [{
+  id: campaign.id,
+  title: campaign.title,
+  description: campaign.description,
+  type: campaign.task_type,
+  reward: campaign.reward_amount,
+  questions: campaign.required_fields || [],
+  icon: campaign.task_type === 'poll' ? '📊' :
+        campaign.task_type === 'text_feedback' ? '💬' :
+        campaign.task_type === 'video_upload' ? '🎥' :
+        campaign.task_type === 'audio_upload' ? '🎤' :
+        campaign.task_type === 'image_upload' ? '📸' : '📄'
+}];
 
-      return campaign;
-    });
-
-    console.log('✅ Loaded campaigns:', campaigns);
-
-     // Filter out campaigns user has already completed
-    const completedIds = getCompletedCampaigns();
-    campaigns = campaigns.filter(c => !completedIds.includes(c.id));
-
-    console.log('✅ Available campaigns (after filtering completed):', campaigns);
-
-    if (campaigns.length === 0) {
-      showNoMoreCampaigns();
-      return;
-    }
+console.log('✅ Loaded single campaign:', campaigns[0]);
 
     
     // Check if returning from Stripe
@@ -373,23 +349,6 @@ function closeWidget() {
   minimizeWidget();
 }
 
-function nextCampaign() {
-  currentCampaignIndex = (currentCampaignIndex + 1) % campaigns.length;
-  const content = document.getElementById('content');
-  content.classList.remove('slide-left', 'slide-right');
-  void content.offsetWidth;
-  content.classList.add('slide-right');
-  renderStep1();
-}
-
-function prevCampaign() {
-  currentCampaignIndex = (currentCampaignIndex - 1 + campaigns.length) % campaigns.length;
-  const content = document.getElementById('content');
-  content.classList.remove('slide-left', 'slide-right');
-  void content.offsetWidth;
-  content.classList.add('slide-left');
-  renderStep1();
-}
 
 function startCampaign() {
   currentStep = 2;
@@ -412,7 +371,7 @@ function renderStep1() {
     document.getElementById('rightArrow').classList.add('hidden');
   }
   
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   
   let taskDetails = '';
   if (campaign.type === 'poll') {
@@ -441,11 +400,6 @@ function renderStep1() {
       </div>
     </div>
 
-    <div class="flex justify-center gap-2 mb-6">
-      ${campaigns.map((c, i) => `
-        <div class="carousel-dot ${i === currentCampaignIndex ? 'active' : 'h-2 w-2 rounded-full bg-white/30'}"></div>
-      `).join('')}
-    </div>
 
     <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
       Start & Earn £${campaign.reward} →
@@ -461,7 +415,7 @@ function renderStep2() {
   document.getElementById('leftArrow').classList.add('hidden');
   document.getElementById('rightArrow').classList.add('hidden');
   
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
 
   if (campaign.type === 'poll') {
     renderPoll(campaign);
@@ -513,7 +467,7 @@ function selectPollOption(index) {
   
   document.getElementById(`poll-option-${index}`).classList.add('selected');
   
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   const question = campaign.questions[currentQuestionIndex];
   formData[`question_${currentQuestionIndex}`] = {
     question: question.question,
@@ -533,7 +487,7 @@ function nextPollQuestion() {
 async function submitPoll() {
   console.log('📊 Submitting poll:', formData);
   
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   
   // Build readable text content from poll answers
   let textContent = '';
@@ -610,7 +564,7 @@ function checkTextInput() {
   const count = input.value.length;
   document.getElementById('charCount').textContent = count;
   
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   const question = campaign.questions[currentQuestionIndex];
   
   const nextBtn = document.getElementById('nextBtn');
@@ -635,7 +589,7 @@ function nextTextQuestion() {
 async function submitText() {
   console.log('💬 Submitting text feedback:', formData);
   
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   
   // Build readable text content from all answers
   let textContent = '';
@@ -752,7 +706,7 @@ function renderStep3() {
   document.getElementById('backBtn').classList.add('hidden');
   document.getElementById('leftArrow').classList.add('hidden');
   document.getElementById('rightArrow').classList.add('hidden');
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   const submission = formData; // Keep submission data
 
   document.getElementById('content').innerHTML = `
@@ -836,7 +790,7 @@ async function handleStripeConnect() {
     }
 
     // Update the most recent submission with the real email
-const campaign = campaigns[currentCampaignIndex];
+const campaign = campaigns[campaigns[0]];
 
 const updateSubmission = await fetch(
   `${SUPABASE_URL}/rest/v1/submissions?task_id=eq.${campaign.id}&customer_email=eq.test@example.com&order=created_at.desc&limit=1`,
@@ -889,7 +843,7 @@ if (data.alreadyOnboarded) {
 }
   
 function showSuccessScreen() {
-  const campaign = campaigns[currentCampaignIndex];
+  const campaign = campaigns[campaigns[0]];
   
   document.getElementById('content').innerHTML = `
     <div class="text-center">
@@ -925,53 +879,15 @@ function showSuccessScreen() {
 }
 
 function minimizeWidget() {
-  // Hide main widget with fade out
   const widget = document.getElementById('widget-root');
-  widget.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+  widget.style.transition = 'opacity 0.3s ease';
   widget.style.opacity = '0';
-  widget.style.transform = 'scale(0.9)';
   
   setTimeout(() => {
-    widget.classList.add('hidden');
-    // Show minimized icon
-    const icon = document.getElementById('minimizedIcon');
-    icon.classList.remove('hidden');
-    icon.style.opacity = '0';
-    icon.style.transform = 'scale(0.5)';
-    
-    // Animate in
-    setTimeout(() => {
-      icon.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      icon.style.opacity = '1';
-      icon.style.transform = 'scale(1)';
-    }, 50);
+    widget.style.display = 'none';
   }, 300);
 }
 
-function restoreWidget() {
-  const icon = document.getElementById('minimizedIcon');
-  icon.style.opacity = '0';
-  icon.style.transform = 'scale(0.5)';
-  
-  setTimeout(() => {
-    icon.classList.add('hidden');
-    
-    const widget = document.getElementById('widget-root');
-    widget.classList.remove('hidden');
-    widget.style.opacity = '0';
-    widget.style.transform = 'scale(0.9)';
-    
-    // Reset to show available campaigns
-    currentCampaignIndex = 0;
-    renderStep1();
-    
-    setTimeout(() => {
-      widget.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-      widget.style.opacity = '1';
-      widget.style.transform = 'scale(1)';
-    }, 50);
-  }, 300);
-}
   
 function showFinalSuccess() {
   document.getElementById('backBtn').classList.add('hidden');
@@ -994,11 +910,6 @@ function showFinalSuccess() {
       <p class="text-white/40 text-sm">Minimizing in 3 seconds...</p>
     </div>
   `;
-  
-  // Auto-minimize after 3 seconds
-  setTimeout(() => {
-    minimizeWidget();
-  }, 3000);
 }
   
 // ============================================
