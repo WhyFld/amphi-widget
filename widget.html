@@ -404,10 +404,8 @@ function renderStep1() {
 // ============================================
 function renderStep2() {
   document.getElementById('backBtn').classList.remove('hidden');
-  document.getElementById('leftArrow').classList.add('hidden');
-  document.getElementById('rightArrow').classList.add('hidden');
   
-  const campaign = campaigns[campaigns[0]];
+ const campaign = campaigns[0];
 
   if (campaign.type === 'poll') {
     renderPoll(campaign);
@@ -459,7 +457,7 @@ function selectPollOption(index) {
   
   document.getElementById(`poll-option-${index}`).classList.add('selected');
   
-  const campaign = campaigns[campaigns[0]];
+  const campaign = campaigns[0];
   const question = campaign.questions[currentQuestionIndex];
   formData[`question_${currentQuestionIndex}`] = {
     question: question.question,
@@ -479,7 +477,7 @@ function nextPollQuestion() {
 async function submitPoll() {
   console.log('📊 Submitting poll:', formData);
   
-  const campaign = campaigns[campaigns[0]];
+  const campaign = campaigns[0];
   
   // Build readable text content from poll answers
   let textContent = '';
@@ -556,7 +554,7 @@ function checkTextInput() {
   const count = input.value.length;
   document.getElementById('charCount').textContent = count;
   
-  const campaign = campaigns[campaigns[0]];
+  const campaign = campaigns[0];
   const question = campaign.questions[currentQuestionIndex];
   
   const nextBtn = document.getElementById('nextBtn');
@@ -581,7 +579,7 @@ function nextTextQuestion() {
 async function submitText() {
   console.log('💬 Submitting text feedback:', formData);
   
-  const campaign = campaigns[campaigns[0]];
+  const campaign = campaigns[0];
   
   // Build readable text content from all answers
   let textContent = '';
@@ -696,9 +694,8 @@ function renderImageUpload(campaign) {
 // ============================================
 function renderStep3() {
   document.getElementById('backBtn').classList.add('hidden');
-  document.getElementById('leftArrow').classList.add('hidden');
-  document.getElementById('rightArrow').classList.add('hidden');
-  const campaign = campaigns[campaigns[0]];
+
+  const campaign = campaigns[0];
   const submission = formData; // Keep submission data
 
   document.getElementById('content').innerHTML = `
@@ -782,7 +779,7 @@ async function handleStripeConnect() {
     }
 
     // Update the most recent submission with the real email
-const campaign = campaigns[campaigns[0]];
+const campaign = campaigns[0];
 
 const updateSubmission = await fetch(
   `${SUPABASE_URL}/rest/v1/submissions?task_id=eq.${campaign.id}&customer_email=eq.test@example.com&order=created_at.desc&limit=1`,
@@ -835,7 +832,7 @@ if (data.alreadyOnboarded) {
 }
   
 function showSuccessScreen() {
-  const campaign = campaigns[campaigns[0]];
+  const campaign = campaigns[0];
   
   document.getElementById('content').innerHTML = `
     <div class="text-center">
@@ -883,8 +880,6 @@ function minimizeWidget() {
   
 function showFinalSuccess() {
   document.getElementById('backBtn').classList.add('hidden');
-  document.getElementById('leftArrow').classList.add('hidden');
-  document.getElementById('rightArrow').classList.add('hidden');
   
   document.getElementById('content').innerHTML = `
     <div class="text-center">
