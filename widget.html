@@ -282,18 +282,19 @@ campaigns = [{
 }];
 
 console.log('✅ Loaded single campaign:', campaigns[0]);
+  
+    // Check if returning from Stripe
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      const email = urlParams.get('email');
 
+    
   // ⭐ NEW: Check if user already completed this campaign
     if (isCampaignCompleted(campaigns[0].id)) {
     console.log('✅ User already completed this campaign');
     document.getElementById('widget-root').style.display = 'none';
     return;
   }
-    
-    // Check if returning from Stripe
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      const email = urlParams.get('email');
       
       await fetch(`${SUPABASE_URL}/rest/v1/customers?email=eq.${encodeURIComponent(email)}`, {
         method: 'PATCH',
