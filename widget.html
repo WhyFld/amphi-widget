@@ -363,15 +363,7 @@ function startCampaign() {
 function renderStep1() {
   document.getElementById('backBtn').classList.add('hidden');
   
-  if (campaigns.length > 1) {
-    document.getElementById('leftArrow').classList.remove('hidden');
-    document.getElementById('rightArrow').classList.remove('hidden');
-  } else {
-    document.getElementById('leftArrow').classList.add('hidden');
-    document.getElementById('rightArrow').classList.add('hidden');
-  }
-  
-  const campaign = campaigns[campaigns[0]];
+  const campaign = campaigns[0];
   
   let taskDetails = '';
   if (campaign.type === 'poll') {
