@@ -257,45 +257,31 @@ async function loadCampaigns() {
       return;
     }
 
-    // Get only the first active campaign
-if (!data || data.length === 0) {
-  console.log('❌ No active campaigns');
-  document.getElementById('widget-root').style.display = 'none';
-  return;
-}
+    // Just take the first one
+    const campaign = data[0];
 
-// Just take the first one
-const campaign = data[0];
+    campaigns = [{
+      id: campaign.id,
+      title: campaign.title,
+      description: campaign.description,
+      type: campaign.task_type,
+      reward: campaign.reward_amount,
+      questions: campaign.required_fields || [],
+      icon: campaign.task_type === 'poll' ? '📊' :
+            campaign.task_type === 'text_feedback' ? '💬' :
+            campaign.task_type === 'video_upload' ? '🎥' :
+            campaign.task_type === 'audio_upload' ? '🎤' :
+            campaign.task_type === 'image_upload' ? '📸' : '📄'
+    }];
 
-campaigns = [{
-  id: campaign.id,
-  title: campaign.title,
-  description: campaign.description,
-  type: campaign.task_type,
-  reward: campaign.reward_amount,
-  questions: campaign.required_fields || [],
-  icon: campaign.task_type === 'poll' ? '📊' :
-        campaign.task_type === 'text_feedback' ? '💬' :
-        campaign.task_type === 'video_upload' ? '🎥' :
-        campaign.task_type === 'audio_upload' ? '🎤' :
-        campaign.task_type === 'image_upload' ? '📸' : '📄'
-}];
+    console.log('Loaded single campaign:', campaigns[0]);
 
-console.log('✅ Loaded single campaign:', campaigns[0]);
-  
-    // Check if returning from Stripe
+    // STRIPE RETURN: SHOW SUCCESS EVEN IF COMPLETED
     const urlParams = new URLSearchParams(window.location.search);
     if (urlParams.get('success') === 'true') {
       const email = urlParams.get('email');
+      console.log('Returning from Stripe — showing success');
 
-    
-  // ⭐ NEW: Check if user already completed this campaign
-    if (isCampaignCompleted(campaigns[0].id)) {
-    console.log('✅ User already completed this campaign');
-    document.getElementById('widget-root').style.display = 'none';
-    return;
-  }
-      
       await fetch(`${SUPABASE_URL}/rest/v1/customers?email=eq.${encodeURIComponent(email)}`, {
         method: 'PATCH',
         headers: {
@@ -307,11 +293,20 @@ console.log('✅ Loaded single campaign:', campaigns[0]);
           stripe_onboarding_completed: true
         })
       });
-      
+
       showFinalSuccess();
       window.history.replaceState({}, '', window.location.pathname);
       return;
     }
+
+    // NORMAL FLOW: Hide if already completed
+    if (isCampaignCompleted(campaigns[0].id)) {
+      console.log('User already completed — hiding widget');
+      document.getElementById('widget-root').style.display = 'none';
+      document.getElementById('minimizedIcon').classList.add('hidden');
+      return;
+    }
+
     renderStep1();
 
   } catch (error) {
