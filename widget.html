@@ -283,6 +283,12 @@ campaigns = [{
 
 console.log('✅ Loaded single campaign:', campaigns[0]);
 
+  // ⭐ NEW: Check if user already completed this campaign
+    if (isCampaignCompleted(campaigns[0].id)) {
+    console.log('✅ User already completed this campaign');
+    document.getElementById('widget-root').style.display = 'none';
+    return;
+  }
     
     // Check if returning from Stripe
     const urlParams = new URLSearchParams(window.location.search);
@@ -848,24 +854,6 @@ function showSuccessScreen() {
   `;
 }
 
-  function showNoMoreCampaigns() {
-  document.getElementById('backBtn').classList.add('hidden');
-  document.getElementById('leftArrow').classList.add('hidden');
-  document.getElementById('rightArrow').classList.add('hidden');
-  
-  document.getElementById('content').innerHTML = `
-    <div class="text-center">
-      <div class="text-6xl mb-6">✅</div>
-      <h2 class="text-white text-2xl font-bold mb-4">You're all caught up!</h2>
-      <p class="text-white/70 text-lg mb-6">
-        You've completed all available campaigns.
-      </p>
-      <p class="text-white/50 text-sm">
-        Check back later for new opportunities to earn rewards!
-      </p>
-    </div>
-  `;
-}
 
 function minimizeWidget() {
   const widget = document.getElementById('widget-root');
