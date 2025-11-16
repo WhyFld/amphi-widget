@@ -786,10 +786,25 @@ function stopAudioRecording() {
 function showAudioPreview() {
   const audioURL = URL.createObjectURL(audioBlob);
   
-  document.getElementById('audioPreview').innerHTML = `
-    <audio controls class="w-full" src="${audioURL}"></audio>
+  // Update the recording area to show preview
+  document.getElementById('recordingArea').innerHTML = `
+    <div class="w-full">
+      <div class="text-center mb-4">
+        <div class="text-6xl mb-2">✅</div>
+        <p class="text-white/80 text-lg font-semibold mb-1">Recording complete!</p>
+        <p class="text-white/50 text-sm">Listen to your recording below</p>
+      </div>
+      
+      <div class="bg-black/30 rounded-xl p-6 mb-4">
+        <audio controls class="w-full" src="${audioURL}" style="height: 54px;"></audio>
+      </div>
+      
+      <div class="flex items-center justify-center gap-2 text-white/60 text-sm">
+        <span>⏱️</span>
+        <span>${Math.floor(recordingSeconds / 60)}:${(recordingSeconds % 60).toString().padStart(2, '0')}</span>
+      </div>
+    </div>
   `;
-  document.getElementById('audioPreview').classList.remove('hidden');
   
   // Hide record button, show actions
   document.getElementById('recordBtn').classList.add('hidden');
