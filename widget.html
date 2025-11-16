@@ -6,6 +6,7 @@
   <title>AMPHI Widget</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://js.stripe.com/v3/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lamejs@1.2.0/lame.min.js"></script>
   <style>
     body {
       margin: 0;
@@ -836,32 +837,65 @@ async function submitAudio() {
   document.getElementById('audioActions').innerHTML = `
     <div class="text-center text-white/70 py-4">
       <div class="text-4xl mb-2">⏳</div>
-      <p>Uploading audio...</p>
+      <p>Converting and uploading audio...</p>
     </div>
   `;
   
   try {
-    // Upload to Supabase Storage
-    const fileName = `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.webm`;
+    // Convert WebM blob to MP3
+    const arrayBuffer = await audioBlob.arrayBuffer();
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     
-    const { data: uploadData, error: uploadError } = await supabaseClient
-      .storage
-      .from('campaign-audio')
-      .upload(fileName, audioBlob, {
-        contentType: 'audio/webm'
-      });
+    // Get audio data
+    const channelData = audioBuffer.getChannelData(0);
+    const samples = new Int16Array(channelData.length);
+    for (let i = 0; i < channelData.length; i++) {
+      samples[i] = Math.max(-1, Math.min(1, channelData[i])) * 0x7FFF;
+    }
     
-    if (uploadError) throw uploadError;
+    // Encode to MP3
+    const mp3encoder = new lamejs.Mp3Encoder(1, audioBuffer.sampleRate, 128);
+    const mp3Data = [];
+    const sampleBlockSize = 1152;
+    
+    for (let i = 0; i < samples.length; i += sampleBlockSize) {
+      const sampleChunk = samples.subarray(i, i + sampleBlockSize);
+      const mp3buf = mp3encoder.encodeBuffer(sampleChunk);
+      if (mp3buf.length > 0) {
+        mp3Data.push(mp3buf);
+      }
+    }
+    
+    const mp3buf = mp3encoder.flush();
+    if (mp3buf.length > 0) {
+      mp3Data.push(mp3buf);
+    }
+    
+    // Create MP3 blob
+    const mp3Blob = new Blob(mp3Data, { type: 'audio/mp3' });
+    
+    // Upload MP3 to Supabase Storage
+    const fileName = `audio_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.mp3`;
+    
+    const uploadResponse = await fetch(
+      `${SUPABASE_URL}/storage/v1/object/campaign-audio/${fileName}`,
+      {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'audio/mp3'
+        },
+        body: mp3Blob
+      }
+    );
+    
+    if (!uploadResponse.ok) throw new Error('Upload failed');
     
     // Get public URL
-    const urlData = supabaseClient
-      .storage
-      .from('campaign-audio')
-      .getPublicUrl(fileName);
-
-    
-    const audioUrl = urlData.publicUrl;
-    console.log('✅ Audio uploaded:', audioUrl);
+    const audioUrl = `${SUPABASE_URL}/storage/v1/object/public/campaign-audio/${fileName}`;
+    console.log('✅ MP3 uploaded:', audioUrl);
     
     // Save submission to database
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
@@ -895,7 +929,6 @@ async function submitAudio() {
     retakeAudio();
   }
 }
-
 function renderImageUpload(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
