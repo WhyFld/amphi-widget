@@ -1158,15 +1158,12 @@ async function submitVideo() {
     </div>
 
     <div id="imageButtons" class="space-y-3">
-      <button onclick="openCamera()" 
-              class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
-        📷 Take Photo
-      </button>
-      <button onclick="openFilePicker()" 
-              class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-        📁 Choose from Device
-      </button>
-    </div>
+  <button onclick="openImageInput()" 
+          class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+    📸 Add Photo
+  </button>
+  <p class="text-white/40 text-xs text-center">Camera or choose from device</p>
+</div>
     
     <div id="imageActions" class="hidden space-y-3">
       <button onclick="retakeImage()" 
@@ -1184,21 +1181,9 @@ async function submitVideo() {
   // Image upload variables
 let imageBlob;
 
-function openCamera() {
+function openImageInput() {
   const input = document.getElementById('imageInput');
-  input.setAttribute('capture', 'environment'); // Use back camera on mobile
-  input.click();
-  
-  input.onchange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      handleImageSelect(e.target.files[0]);
-    }
-  };
-}
-
-function openFilePicker() {
-  const input = document.getElementById('imageInput');
-  input.removeAttribute('capture'); // Allow gallery selection
+  input.setAttribute('capture', 'environment'); // Opens camera on mobile automatically
   input.click();
   
   input.onchange = (e) => {
