@@ -1139,7 +1139,10 @@ async function submitVideo() {
   }
 }
   
-  function renderImageUpload(campaign) {
+ function renderImageUpload(campaign) {
+  // Detect if mobile
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+  
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-4">
       <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
@@ -1150,20 +1153,30 @@ async function submitVideo() {
       <div id="imagePlaceholder" class="text-center">
         <div class="text-6xl mb-4">📸</div>
         <p class="text-white/80 text-lg font-semibold mb-2">Add a photo</p>
-        <p class="text-white/50 text-sm">Take or upload from device</p>
+        <p class="text-white/50 text-sm">${isMobile ? 'Take or choose from gallery' : 'Choose from device'}</p>
       </div>
       
       <img id="imagePreview" class="hidden w-full rounded-lg max-h-[400px] object-contain" />
-      <input type="file" id="imageInput" accept="image/*" capture="environment" class="hidden" />
+      <input type="file" id="imageInput" accept="image/*" class="hidden" />
     </div>
 
     <div id="imageButtons" class="space-y-3">
-  <button onclick="openImageInput()" 
-          class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-    📸 Add Photo
-  </button>
-  <p class="text-white/40 text-xs text-center">Camera or choose from device</p>
-</div>
+      ${isMobile ? `
+        <button onclick="openCamera()" 
+                class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
+          📷 Take Photo
+        </button>
+        <button onclick="openFilePicker()" 
+                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+          🖼️ Choose from Gallery
+        </button>
+      ` : `
+        <button onclick="openFilePicker()" 
+                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+          📁 Choose Photo
+        </button>
+      `}
+    </div>
     
     <div id="imageActions" class="hidden space-y-3">
       <button onclick="retakeImage()" 
@@ -1178,12 +1191,25 @@ async function submitVideo() {
   `;
 }
 
+  
   // Image upload variables
 let imageBlob;
 
-function openImageInput() {
+function openCamera() {
   const input = document.getElementById('imageInput');
-  input.setAttribute('capture', 'environment'); // Opens camera on mobile automatically
+  input.setAttribute('capture', 'environment'); // Use back camera on mobile
+  input.click();
+  
+  input.onchange = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      handleImageSelect(e.target.files[0]);
+    }
+  };
+}
+
+function openFilePicker() {
+  const input = document.getElementById('imageInput');
+  input.removeAttribute('capture'); // Allow gallery selection
   input.click();
   
   input.onchange = (e) => {
