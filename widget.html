@@ -285,12 +285,14 @@ async function loadCampaigns() {
       }
     );
 
-    const data = await response.json();
-    
-    if (!data || data.length === 0) {
-      showError('No active campaigns found');
-      return;
-    }
+   const data = await response.json();
+
+  // If no active campaigns, hide widget completely
+  if (!data || data.length === 0) {
+    console.log('ℹ️ No active campaigns - hiding widget');
+    document.getElementById('widget-root').style.display = 'none';
+    return;
+  }
 
     // Just take the first one
     const campaign = data[0];
