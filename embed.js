@@ -7,6 +7,9 @@
     ? 'http://localhost:3000/widget.html'
     : 'https://amphi-widget.vercel.app/widget.html';
 
+  // ✅ NEW: Get brand ID from window (set by brand's embed code)
+  const BRAND_ID = window.AMPHI_BRAND_ID || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2';
+
   let isMinimized = true;
   let widgetContainer = null;
   let minimizedIcon = null;
@@ -58,19 +61,21 @@
   function createWidgetContainer() {
     widgetContainer = document.createElement('div');
     widgetContainer.id = 'amphi-widget-container';
-  widgetContainer.style.cssText = `
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 9999999;
-  display: none;
-  pointer-events: none;
-`;
+    widgetContainer.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 9999999;
+      display: none;
+      pointer-events: none;
+    `;
+    
     const iframe = document.createElement('iframe');
     iframe.id = 'amphi-widget-iframe';
-    iframe.src = WIDGET_URL;
+    // ✅ NEW: Pass brand ID to widget via URL parameter
+    iframe.src = WIDGET_URL + '?brand=' + BRAND_ID;
     iframe.style.cssText = `
       width: 100%;
       height: 100%;
