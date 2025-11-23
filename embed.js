@@ -69,7 +69,6 @@
       height: 100%;
       z-index: 9999999;
       display: none;
-      pointer-events: none;
     `;
     
     const iframe = document.createElement('iframe');
