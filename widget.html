@@ -1435,8 +1435,22 @@ function handleBankLinkSkip() {
 }
 
 function handleLinkBankRetry() {
-  // Open Stripe again
-  window.open(formData.stripeUrl, '_blank');
+  // Open Stripe in popup (not new tab)
+  const width = 600;
+  const height = 800;
+  const left = (window.screen.width - width) / 2;
+  const top = (window.screen.height - height) / 2;
+
+  const popup = window.open(
+    formData.stripeUrl,
+    'stripe-connect',
+    `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+  );
+
+  if (!popup || popup.closed) {
+    alert('⚠️ Popup blocked! Please allow popups and try again.');
+    return;
+  }
   
   // Show step 4 question again
   renderStep4();
@@ -1493,8 +1507,25 @@ async function handleStripeConnect() {
       formData.email = email;
       formData.stripeUrl = data.onboardingUrl;
       
-      // Open Stripe in new tab
-      window.open(data.onboardingUrl, '_blank');
+     // Open Stripe in popup window (centered, 600x800)
+      const width = 600;
+      const height = 800;
+      const left = (window.screen.width - width) / 2;
+      const top = (window.screen.height - height) / 2;
+
+      const popup = window.open(
+        data.onboardingUrl,
+        'stripe-connect',
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      );
+
+    // Handle popup blocker
+    if (!popup || popup.closed) {
+     alert('⚠️ Popup blocked! Please allow popups and try again.');
+    currentStep = 3;
+    renderStep3();
+    return;
+    }
       
       // Move to step 4
       currentStep = 4;
