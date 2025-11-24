@@ -59,6 +59,31 @@
   </div>
 
   <script>
+    // Update database to mark onboarding complete
+    const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const email = urlParams.get('email');
+
+    if (email) {
+      fetch(`${SUPABASE_URL}/rest/v1/customers?email=eq.${encodeURIComponent(email)}`, {
+        method: 'PATCH',
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          stripe_onboarding_completed: true
+        })
+      }).then(() => {
+        console.log('✅ Stripe onboarding marked complete');
+      }).catch(err => {
+        console.error('Failed to update onboarding status:', err);
+      });
+    }
+
     // Auto-close after 3 seconds
     setTimeout(() => {
       window.close();
