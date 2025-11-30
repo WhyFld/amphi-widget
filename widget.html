@@ -339,12 +339,19 @@ async function loadCampaigns() {
     }
 
     // NORMAL FLOW: Hide if already completed
-    if (isCampaignCompleted(campaigns[0].id)) {
-      console.log('User already completed — hiding widget');
-      document.getElementById('widget-root').style.display = 'none';
-      document.getElementById('minimizedIcon').classList.add('hidden');
-      return;
-    }
+ 
+if (isCampaignCompleted(campaigns[0].id)) {
+  console.log('User already completed — hiding widget');
+  
+  // Tell parent to hide icon permanently
+  window.parent.postMessage({
+    action: 'hide_icon_forever',
+    brandId: BRAND_ID,
+    campaignId: campaigns[0].id
+  }, '*');
+  
+  return;
+}
 
     renderStep1();
 
@@ -1568,13 +1575,8 @@ function showSuccessScreen() {
 
 
 function minimizeWidget() {
-  const widget = document.getElementById('widget-root');
-  widget.style.transition = 'opacity 0.3s ease';
-  widget.style.opacity = '0';
-  
-  setTimeout(() => {
-    widget.style.display = 'none';
-  }, 300);
+  // Send message to parent to minimize
+  window.parent.postMessage({ action: 'minimize' }, '*');
 }
 
   
@@ -1594,12 +1596,25 @@ function showFinalSuccess() {
           The brand will review your submission. Once approved, you'll receive your payment within 24-48 hours.
         </p>
       </div>
-      <button onclick="minimizeWidget()" 
-              class="w-full py-3 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all">
-        Close
-      </button>
+      <button onclick="handleFinalClose()" 
+        class="w-full py-3 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all">
+      Close
+    </button>
     </div>
   `;
+}
+
+function handleFinalClose() {
+  const campaign = campaigns[0];
+  
+  // Tell parent to hide icon permanently
+  window.parent.postMessage({
+    action: 'hide_icon_forever',
+    brandId: BRAND_ID,
+    campaignId: campaign.id
+  }, '*');
+  
+  console.log('✅ Campaign completed, hiding icon permanently');
 }
   
 // ============================================
