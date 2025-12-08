@@ -580,7 +580,7 @@ function renderTextFeedback(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-4">
       <div class="text-white/50 text-sm mb-2">Question ${currentQuestionIndex + 1} of ${totalQuestions}</div>
-      <h3 class="text-white text-xl font-bold mb-6">${question}</h3>
+      <h3 class="text-white text-xl font-bold mb-6">${question.question || question}</h3>
     </div>
 
     <textarea id="textInput" 
@@ -613,9 +613,9 @@ function checkTextInput() {
   const nextBtn = document.getElementById('nextBtn');
   if (count > 10) {
     formData[`question_${currentQuestionIndex}`] = {
-      question: question,
-      answer: input.value
-    };
+    question: question.question || question,
+    answer: input.value
+  };
     nextBtn.disabled = false;
     nextBtn.classList.remove('opacity-50', 'cursor-not-allowed');
   } else {
