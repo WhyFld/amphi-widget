@@ -1473,9 +1473,54 @@ async function handleStripeConnect() {
 
   errorMsg.classList.add('hidden');
   btn.disabled = true;
-  btn.textContent = 'Preparing...';
+  btn.textContent = 'Checking...';
 
   try {
+    const campaign = campaigns[0];
+    
+    // 🎯 NEW: Check if email already submitted to THIS campaign
+    const duplicateCheck = await fetch(
+      `${SUPABASE_URL}/rest/v1/submissions?task_id=eq.${campaign.id}&customer_email=eq.${encodeURIComponent(email)}&select=id,status`,
+      {
+        headers: {
+          'apikey': SUPABASE_KEY,
+          'Authorization': `Bearer ${SUPABASE_KEY}`
+        }
+      }
+    );
+
+    const existingSubmissions = await duplicateCheck.json();
+
+    // If ANY submission exists (regardless of status), block it
+    if (existingSubmissions && existingSubmissions.length > 0) {
+      console.log('🚫 You've already submitted:', email);
+      
+      // Show "already completed" message
+      document.getElementById('content').innerHTML = `
+        <div class="text-center">
+          <div class="text-6xl mb-6">⚠️</div>
+          <h3 class="text-white text-2xl font-bold mb-4">You already completed this!</h3>
+          <p class="text-white/70 text-sm mb-6">
+            ${email} has already submitted a response to this campaign.
+          </p>
+          <p class="text-white/60 text-sm">
+            Only one submission per email is allowed.
+          </p>
+        </div>
+      `;
+      
+      // Mark campaign as completed and close widget after 3 seconds
+      setTimeout(() => {
+        markCampaignCompleted(campaign.id);
+        handleFinalClose();
+      }, 3000);
+      
+      return; // ← Stop execution here
+    }
+
+    // ✅ Email is new - proceed with Stripe account creation
+    console.log('✅ New email - proceeding with payment setup');
+
     const response = await fetch('https://amphi-dashboard.vercel.app/api/create-stripe-account', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -1489,7 +1534,6 @@ async function handleStripeConnect() {
     }
 
     // Update submission with real email
-    const campaign = campaigns[0];
     await fetch(`${SUPABASE_URL}/rest/v1/submissions?task_id=eq.${campaign.id}&customer_email=eq.test@example.com&order=created_at.desc&limit=1`, {
       method: 'PATCH',
       headers: {
@@ -1511,7 +1555,7 @@ async function handleStripeConnect() {
       formData.email = email;
       formData.stripeUrl = data.onboardingUrl;
       
-     // Open Stripe in popup window (centered, 600x800)
+      // Open Stripe in popup window (centered, 600x800)
       const width = 600;
       const height = 800;
       const left = (window.screen.width - width) / 2;
@@ -1523,13 +1567,13 @@ async function handleStripeConnect() {
         `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
       );
 
-    // Handle popup blocker
-    if (!popup || popup.closed) {
-     alert('⚠️ Popup blocked! Please allow popups and try again.');
-    currentStep = 3;
-    renderStep3();
-    return;
-    }
+      // Handle popup blocker
+      if (!popup || popup.closed) {
+        alert('⚠️ Popup blocked! Please allow popups and try again.');
+        currentStep = 3;
+        renderStep3();
+        return;
+      }
       
       // Move to step 4
       currentStep = 4;
@@ -1551,7 +1595,7 @@ async function handleStripeConnect() {
       </div>
     `;
   }
-} 
+}
   
 function showSuccessScreen() {
   const campaign = campaigns[0];
