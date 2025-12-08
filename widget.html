@@ -559,9 +559,11 @@ async function submitPoll() {
     });
 
     if (response.ok) {
-      console.log('✅ Poll submitted successfully!');
-      renderStep3();
-    } else {
+  const data = await response.json();
+  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  console.log('✅ [Type] submitted successfully!');
+  renderStep3();
+} else {
       const error = await response.json();
       console.error('❌ Submission failed:', error);
       alert('Submission failed. Please try again.');
@@ -661,9 +663,11 @@ async function submitText() {
     });
 
     if (response.ok) {
-      console.log('✅ Text feedback submitted successfully!');
-      renderStep3();
-    } else {
+  const data = await response.json();
+  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  console.log('✅ [Type] submitted successfully!');
+  renderStep3();
+} else {
       const error = await response.json();
       console.error('❌ Submission failed:', error);
       alert('Submission failed. Please try again.');
@@ -951,9 +955,11 @@ async function submitAudio() {
     });
 
     if (response.ok) {
-      console.log('✅ Audio submission saved!');
-      renderStep3();
-    } else {
+  const data = await response.json();
+  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  console.log('✅ [Type] submitted successfully!');
+  renderStep3();
+} else {
       throw new Error('Failed to save submission');
     }
     
@@ -1142,9 +1148,11 @@ async function submitVideo() {
     });
 
     if (response.ok) {
-      console.log('✅ Video submission saved!');
-      renderStep3();
-    } else {
+  const data = await response.json();
+  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  console.log('✅ [Type] submitted successfully!');
+  renderStep3();
+} else {
       throw new Error('Failed to save submission');
     }
     
@@ -1332,9 +1340,11 @@ async function submitImage() {
     });
 
     if (response.ok) {
-      console.log('✅ Image submission saved!');
-      renderStep3();
-    } else {
+  const data = await response.json();
+  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  console.log('✅ [Type] submitted successfully!');
+  renderStep3();
+} else {
       throw new Error('Failed to save submission');
     }
     
@@ -1492,7 +1502,17 @@ async function handleStripeConnect() {
 
     if (existingSubmissions && existingSubmissions.length > 0) {
       console.log('Duplicate email detected:', email);
-      
+      // DELETE the orphaned submission by its specific ID
+  if (formData.submissionId) {
+    await fetch(SUPABASE_URL + '/rest/v1/submissions?id=eq.' + formData.submissionId, {
+      method: 'DELETE',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_KEY
+      }
+    });
+    console.log('Deleted orphaned submission:', formData.submissionId);
+  }
       document.getElementById('content').innerHTML = '<div class="text-center"><div class="text-6xl mb-6">⚠️</div><h3 class="text-white text-2xl font-bold mb-4">You already completed this!</h3><p class="text-white/70 text-sm mb-6">' + email + ' has already submitted a response to this campaign.</p><p class="text-white/60 text-sm">Only one submission per email is allowed.</p></div>';
       
       setTimeout(function() {
