@@ -447,8 +447,8 @@ function renderStep1() {
 
 
     <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-      Start & Earn £${campaign.reward} →
-    </button>
+    ${campaign.reward > 0 ? 'Start & Earn £' + campaign.reward + ' →' : 'Share Your Feedback →'}
+</button>
   `;
 }
 
