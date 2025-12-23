@@ -463,39 +463,60 @@ function startCampaign() {
 // STEP 1: CAMPAIGN CAROUSEL
 // ============================================
 function renderStep1() {
+function renderStep1() {
   document.getElementById('backBtn').classList.add('hidden');
   
   const campaign = campaigns[0];
   
-  let taskDetails = '';
-  if (campaign.type === 'poll') {
-    taskDetails = `${campaign.questions.length} quick questions`;
-  } else if (campaign.type === 'text_feedback') {
-    taskDetails = `${campaign.questions.length} text questions`;
-  } else if (campaign.type === 'video_upload') {
-    taskDetails = 'Record 90-second video';
-  } else if (campaign.type === 'audio_upload') {
-    taskDetails = 'Record 60-second audio';
-  } else if (campaign.type === 'image_upload') {
-    taskDetails = 'Upload 1 photo';
-  }
+  // Define type-specific content
+  const typeConfig = {
+    'poll': {
+      icon: '📊',
+      label: 'POLL',
+      action: 'Answer a quick poll',
+      time: '30 seconds'
+    },
+    'text_feedback': {
+      icon: '💬',
+      label: 'FEEDBACK',
+      action: 'Share your thoughts',
+      time: '2 minutes'
+    },
+    'video_upload': {
+      icon: '🎥',
+      label: 'VIDEO',
+      action: 'Record a short video',
+      time: '3 minutes'
+    },
+    'audio_upload': {
+      icon: '🎤',
+      label: 'AUDIO',
+      action: 'Share a voice note',
+      time: '2 minutes'
+    },
+    'image_upload': {
+      icon: '📸',
+      label: 'IMAGE',
+      action: 'Upload a photo',
+      time: '1 minute'
+    }
+  };
+  
+  const config = typeConfig[campaign.type] || typeConfig['poll'];
 
   document.getElementById('content').innerHTML = `
-   
-
     <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
       <div class="text-center">
-        <div class="text-6xl mb-4">${campaign.icon}</div>
-        <p class="text-white/80 text-lg font-semibold mb-2">${campaign.title}</p>
-        <p class="text-white/50 text-sm mb-1">${campaign.description}</p>
-        <p class="text-white/40 text-xs mt-2">${taskDetails}</p>
+        <div class="text-6xl mb-4">${config.icon}</div>
+        <div class="text-white text-2xl font-bold mb-3">${config.label}</div>
+        <p class="text-white/70 text-base mb-2">${config.action}</p>
+        <p class="text-white/50 text-sm">Takes ${config.time}</p>
       </div>
     </div>
 
-
     <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-    ${campaign.reward > 0 ? 'Start & Earn £' + campaign.reward + ' →' : 'Share Your Feedback →'}
-</button>
+      Start →
+    </button>
   `;
 }
 
