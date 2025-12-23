@@ -160,14 +160,17 @@
 
   // Minimize widget
   function minimizeWidget() {
-    if (widgetContainer) {
-      widgetContainer.style.display = 'none';
-      if (minimizedIcon) {
-        minimizedIcon.style.display = 'flex';
-      }
-      isMinimized = true;
+  if (widgetContainer) {
+    widgetContainer.style.display = 'none';
+    if (minimizedIcon) {
+      minimizedIcon.style.display = 'flex';
     }
+    isMinimized = true;
+    
+    // Remember that user dismissed it
+    localStorage.setItem('amphi_user_dismissed', 'true');
   }
+}
 
   // Hide icon permanently (campaign completed)
   function hideIconPermanently(brandId, campaignId) {
@@ -191,14 +194,17 @@
 
   // Auto-open after delay
   function autoOpen() {
-    if (shouldAutoOpen) {
-      setTimeout(() => {
-        if (isMinimized) {
-          openWidget();
-        }
-      }, 3000); // Open after 3 seconds
-    }
+  // Check if user has dismissed widget before
+  const userDismissed = localStorage.getItem('amphi_user_dismissed');
+  
+  if (shouldAutoOpen && !userDismissed) {
+    setTimeout(() => {
+      if (isMinimized) {
+        openWidget();
+      }
+    }, 3000);
   }
+}
 
   // Initialize
   async function init() {
