@@ -114,6 +114,7 @@
     iframe.id = 'amphi-widget-iframe';
     // Pass brand ID to widget via URL parameter
     iframe.src = WIDGET_URL + '?brand=' + BRAND_ID;
+    iframe.allow = 'camera *; microphone *; display-capture *';
     iframe.style.cssText = `
       width: 100%;
       height: 100%;
