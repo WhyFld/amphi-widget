@@ -1040,10 +1040,10 @@ async function startVideoRecording() {
     });
     
     // Show camera preview
-    const preview = document.getElementById('videoPreview');
-    preview.srcObject = videoStream;
-    preview.classList.remove('hidden');
-    document.getElementById('videoPlaceholder').classList.add('hidden');
+const preview = document.getElementById('videoPreview');
+preview.srcObject = videoStream;
+preview.classList.remove('hidden');
+
     
     // Initialize recorder
     videoRecorder = new MediaRecorder(videoStream, {
@@ -1131,7 +1131,7 @@ function retakeVideo() {
   document.getElementById('videoTimer').textContent = '0:00';
   document.getElementById('videoTimer').classList.add('hidden');
   document.getElementById('videoPlayback').classList.add('hidden');
-  document.getElementById('videoPlaceholder').classList.remove('hidden');
+  // Removed: videoPlaceholder no longer exists
   document.getElementById('videoActions').classList.add('hidden');
   
   const btn = document.getElementById('videoRecordBtn');
@@ -1309,24 +1309,24 @@ function handleImageSelect(file) {
   imageBlob = file;
   
   // Show preview
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    document.getElementById('imagePlaceholder').classList.add('hidden');
-    const preview = document.getElementById('imagePreview');
-    preview.src = e.target.result;
-    preview.classList.remove('hidden');
-    
-    // Show actions, hide buttons
-    document.getElementById('imageButtons').classList.add('hidden');
-    document.getElementById('imageActions').classList.remove('hidden');
-  };
+const reader = new FileReader();
+reader.onload = (e) => {
+  // Removed: imagePlaceholder no longer exists
+  const preview = document.getElementById('imagePreview');
+  preview.src = e.target.result;
+  preview.classList.remove('hidden');
+  
+  // Show actions, hide buttons
+  document.getElementById('imageButtons').classList.add('hidden');
+  document.getElementById('imageActions').classList.remove('hidden');
+};
   reader.readAsDataURL(file);
 }
 
 function retakeImage() {
   // Reset UI
   document.getElementById('imagePreview').classList.add('hidden');
-  document.getElementById('imagePlaceholder').classList.remove('hidden');
+  // Removed: imagePlaceholder no longer exists
   document.getElementById('imageActions').classList.add('hidden');
   document.getElementById('imageButtons').classList.remove('hidden');
   
