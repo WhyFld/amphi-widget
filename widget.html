@@ -746,15 +746,8 @@ function renderVideoUpload(campaign) {
     </div>
 
     <div id="videoArea" class="mb-4 min-h-[320px] flex flex-col items-center justify-center">
-      <div id="videoPlaceholder" class="text-center">
-        <div class="text-6xl mb-4">🎥</div>
-        <p class="text-white/80 text-lg font-semibold mb-2">Ready to record?</p>
-        <p class="text-white/50 text-sm">Max 90 seconds</p>
-      </div>
-      
       <video id="videoPreview" class="hidden w-full rounded-lg" autoplay muted playsinline></video>
       <video id="videoPlayback" class="hidden w-full rounded-lg" controls playsinline></video>
-      
       <div id="videoTimer" class="hidden text-white text-3xl font-mono mt-4">0:00</div>
     </div>
 
@@ -775,7 +768,6 @@ function renderVideoUpload(campaign) {
     </div>
   `;
 }
-
 function renderAudioUpload(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
@@ -784,13 +776,8 @@ function renderAudioUpload(campaign) {
     </div>
 
     <div id="recordingArea" class="mb-6 min-h-[280px] flex flex-col items-center justify-center">
-      <div class="text-center">
-        <div class="text-6xl mb-4">🎤</div>
-        <p class="text-white/80 text-lg font-semibold mb-2">Ready to record?</p>
-        <p class="text-white/50 text-sm mb-4">Max 60 seconds</p>
-        <div id="timer" class="text-white/70 text-2xl font-mono mb-4 hidden">0:00</div>
-        <div id="audioPreview" class="hidden w-full"></div>
-      </div>
+      <div id="timer" class="text-white/70 text-2xl font-mono mb-4 hidden">0:00</div>
+      <div id="audioPreview" class="hidden w-full"></div>
     </div>
 
     <button id="recordBtn" onclick="startAudioRecording()" 
@@ -1230,12 +1217,6 @@ function renderImageUpload(campaign) {
     </div>
 
     <div id="imageArea" class="mb-4 min-h-[320px] flex flex-col items-center justify-center">
-      <div id="imagePlaceholder" class="text-center">
-        <div class="text-6xl mb-4">📸</div>
-        <p class="text-white/80 text-lg font-semibold mb-2">Add a photo</p>
-        <p class="text-white/50 text-sm">${isMobile ? 'Take or choose from gallery' : 'Choose from device'}</p>
-      </div>
-      
       <img id="imagePreview" class="hidden w-full rounded-lg max-h-[400px] object-contain" />
       <input type="file" id="imageInput" accept="image/*" class="hidden" />
     </div>
