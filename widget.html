@@ -740,12 +740,12 @@ async function submitText() {
   
 function renderVideoUpload(campaign) {
   document.getElementById('content').innerHTML = `
-    <div class="text-center mb-4">
-      <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
-      <p class="text-white/60 text-sm">${campaign.description}</p>
+    <div class="text-center mb-6">
+      <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
+      <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
     </div>
 
-    <div id="videoArea" class="campaign-area rounded-2xl p-4 mb-4 min-h-[320px] flex flex-col items-center justify-center">
+    <div id="videoArea" class="mb-4 min-h-[320px] flex flex-col items-center justify-center">
       <div id="videoPlaceholder" class="text-center">
         <div class="text-6xl mb-4">🎥</div>
         <p class="text-white/80 text-lg font-semibold mb-2">Ready to record?</p>
@@ -770,7 +770,7 @@ function renderVideoUpload(campaign) {
       </button>
       <button onclick="submitVideo()" 
               class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-        ${campaign.reward > 0 ? 'Submit & Get Paid →' : 'Submit →'}
+        Submit & Get Paid →
       </button>
     </div>
   `;
@@ -779,11 +779,11 @@ function renderVideoUpload(campaign) {
 function renderAudioUpload(campaign) {
   document.getElementById('content').innerHTML = `
     <div class="text-center mb-6">
-      <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
-      <p class="text-white/60 text-sm">${campaign.description}</p>
+      <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
+      <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
     </div>
 
-    <div id="recordingArea" class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex flex-col items-center justify-center">
+    <div id="recordingArea" class="mb-6 min-h-[280px] flex flex-col items-center justify-center">
       <div class="text-center">
         <div class="text-6xl mb-4">🎤</div>
         <p class="text-white/80 text-lg font-semibold mb-2">Ready to record?</p>
@@ -1220,17 +1220,16 @@ async function submitVideo() {
   }
 }
   
- function renderImageUpload(campaign) {
-  // Detect if mobile
+function renderImageUpload(campaign) {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
   document.getElementById('content').innerHTML = `
-    <div class="text-center mb-4">
-      <h3 class="text-white text-xl font-bold mb-2">${campaign.title}</h3>
-      <p class="text-white/60 text-sm">${campaign.description}</p>
+    <div class="text-center mb-6">
+      <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
+      <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
     </div>
 
-    <div id="imageArea" class="campaign-area rounded-2xl p-6 mb-4 min-h-[320px] flex flex-col items-center justify-center">
+    <div id="imageArea" class="mb-4 min-h-[320px] flex flex-col items-center justify-center">
       <div id="imagePlaceholder" class="text-center">
         <div class="text-6xl mb-4">📸</div>
         <p class="text-white/80 text-lg font-semibold mb-2">Add a photo</p>
