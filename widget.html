@@ -740,60 +740,69 @@ async function submitText() {
   
 function renderVideoUpload(campaign) {
   document.getElementById('content').innerHTML = `
-    <div class="text-center mb-6">
-      <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
-      <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
-    </div>
+    <div class="flex flex-col items-center justify-center min-h-[400px]">
+      <div class="text-center mb-8">
+        <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
+        <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
+      </div>
 
-    <div id="videoArea" class="mb-4 min-h-[320px] flex flex-col items-center justify-center">
-      <video id="videoPreview" class="hidden w-full rounded-lg" autoplay muted playsinline></video>
-      <video id="videoPlayback" class="hidden w-full rounded-lg" controls playsinline></video>
-      <div id="videoTimer" class="hidden text-white text-3xl font-mono mt-4">0:00</div>
-    </div>
+      <div id="videoArea" class="w-full mb-6">
+        <video id="videoPreview" class="hidden w-full rounded-lg" autoplay muted playsinline></video>
+        <video id="videoPlayback" class="hidden w-full rounded-lg" controls playsinline></video>
+        <div id="videoTimer" class="hidden text-white text-3xl font-mono text-center mt-4">0:00</div>
+      </div>
 
-    <button id="videoRecordBtn" onclick="startVideoRecording()" 
-            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-      🎥 Start Recording
-    </button>
-    
-    <div id="videoActions" class="hidden space-y-3">
-      <button onclick="retakeVideo()" 
-              class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
-        🔄 Retake
-      </button>
-      <button onclick="submitVideo()" 
-              class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-        Submit & Get Paid →
-      </button>
+      <div class="w-full">
+        <button id="videoRecordBtn" onclick="startVideoRecording()" 
+                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+          🎥 Start Recording
+        </button>
+        
+        <div id="videoActions" class="hidden space-y-3 mt-3">
+          <button onclick="retakeVideo()" 
+                  class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
+            🔄 Retake
+          </button>
+          <button onclick="submitVideo()" 
+                  class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+            Submit & Get Paid →
+          </button>
+        </div>
+      </div>
     </div>
   `;
 }
+  
 function renderAudioUpload(campaign) {
   document.getElementById('content').innerHTML = `
-    <div class="text-center mb-6">
-      <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
-      <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
-    </div>
+    <div class="flex flex-col items-center justify-center min-h-[400px]">
+      <div class="text-center mb-8">
+        <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
+        <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
+      </div>
 
-    <div id="recordingArea" class="mb-6 min-h-[280px] flex flex-col items-center justify-center">
-      <div id="timer" class="text-white/70 text-2xl font-mono mb-4 hidden">0:00</div>
-      <div id="audioPreview" class="hidden w-full"></div>
-    </div>
+      <div id="recordingArea" class="w-full mb-6">
+        <div id="timer" class="text-white/70 text-2xl font-mono text-center mb-4 hidden">0:00</div>
+        <div id="audioPreview" class="hidden w-full"></div>
+      </div>
 
-    <button id="recordBtn" onclick="startAudioRecording()" 
-            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-      🎤 Start Recording
-    </button>
-    
-    <div id="audioActions" class="hidden space-y-3">
-      <button onclick="retakeAudio()" 
-              class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
-        🔄 Retake
-      </button>
-      <button onclick="submitAudio()" 
-              class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-        Submit & Get Paid →
-      </button>
+      <div class="w-full">
+        <button id="recordBtn" onclick="startAudioRecording()" 
+                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+          🎤 Start Recording
+        </button>
+        
+        <div id="audioActions" class="hidden space-y-3 mt-3">
+          <button onclick="retakeAudio()" 
+                  class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
+            🔄 Retake
+          </button>
+          <button onclick="submitAudio()" 
+                  class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+            Submit & Get Paid →
+          </button>
+        </div>
+      </div>
     </div>
   `;
 }
@@ -1211,43 +1220,47 @@ function renderImageUpload(campaign) {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
   
   document.getElementById('content').innerHTML = `
-    <div class="text-center mb-6">
-      <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
-      <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
-    </div>
+    <div class="flex flex-col items-center justify-center min-h-[400px]">
+      <div class="text-center mb-8">
+        <div class="text-white/50 text-sm mb-2">What we'd like from you</div>
+        <h3 class="text-white text-xl font-bold">${campaign.description}</h3>
+      </div>
 
-    <div id="imageArea" class="mb-4 min-h-[320px] flex flex-col items-center justify-center">
-      <img id="imagePreview" class="hidden w-full rounded-lg max-h-[400px] object-contain" />
-      <input type="file" id="imageInput" accept="image/*" class="hidden" />
-    </div>
+      <div id="imageArea" class="w-full mb-6">
+        <img id="imagePreview" class="hidden w-full rounded-lg max-h-[400px] object-contain" />
+        <input type="file" id="imageInput" accept="image/*" class="hidden" />
+      </div>
 
-    <div id="imageButtons" class="space-y-3">
-      ${isMobile ? `
-        <button onclick="openCamera()" 
-                class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
-          📷 Take Photo
-        </button>
-        <button onclick="openFilePicker()" 
-                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-          🖼️ Choose from Gallery
-        </button>
-      ` : `
-        <button onclick="openFilePicker()" 
-                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-          📁 Choose Photo
-        </button>
-      `}
-    </div>
-    
-    <div id="imageActions" class="hidden space-y-3">
-      <button onclick="retakeImage()" 
-              class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
-        🔄 Choose Different Photo
-      </button>
-      <button onclick="submitImage()" 
-              class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-        Submit & Get Paid →
-      </button>
+      <div class="w-full">
+        <div id="imageButtons" class="space-y-3">
+          ${isMobile ? `
+            <button onclick="openCamera()" 
+                    class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
+              📷 Take Photo
+            </button>
+            <button onclick="openFilePicker()" 
+                    class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+              🖼️ Choose from Gallery
+            </button>
+          ` : `
+            <button onclick="openFilePicker()" 
+                    class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+              📁 Choose Photo
+            </button>
+          `}
+        </div>
+        
+        <div id="imageActions" class="hidden space-y-3 mt-3">
+          <button onclick="retakeImage()" 
+                  class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
+            🔄 Choose Different Photo
+          </button>
+          <button onclick="submitImage()" 
+                  class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+            Submit & Get Paid →
+          </button>
+        </div>
+      </div>
     </div>
   `;
 }
