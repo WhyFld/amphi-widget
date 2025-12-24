@@ -202,6 +202,19 @@
     padding-right: 1.5rem;
   }
 }
+
+.loading-dots::after {
+  content: '...';
+  display: inline-block;
+  animation: dots 1.5s steps(4, end) infinite;
+}
+
+@keyframes dots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
     
   </style>
 </head>
@@ -915,11 +928,10 @@ async function submitAudio() {
   
   // Show uploading state
   document.getElementById('audioActions').innerHTML = `
-    <div class="text-center text-white/70 py-4">
-      <div class="text-4xl mb-2">⏳</div>
-      <p>Converting and uploading audio...</p>
-    </div>
-  `;
+  <div class="text-center text-white/70 py-4">
+    <p class="loading-dots">Uploading</p>
+  </div>
+`;
   
   try {
     // Convert WebM blob to MP3
@@ -1140,12 +1152,10 @@ async function submitVideo() {
   
   // Show uploading state
   document.getElementById('videoActions').innerHTML = `
-    <div class="text-center text-white/70 py-4">
-      <div class="text-4xl mb-2">⏳</div>
-      <p>Uploading video...</p>
-      <p class="text-sm text-white/50 mt-2">This may take a moment...</p>
-    </div>
-  `;
+  <div class="text-center text-white/70 py-4">
+    <p class="loading-dots">Uploading</p>
+  </div>
+`;
   
   try {
     // Upload WebM to Supabase Storage
@@ -1328,12 +1338,11 @@ async function submitImage() {
   const campaign = campaigns[0];
   
   // Show uploading state
-  document.getElementById('imageActions').innerHTML = `
-    <div class="text-center text-white/70 py-4">
-      <div class="text-4xl mb-2">⏳</div>
-      <p>Uploading image...</p>
-    </div>
-  `;
+ document.getElementById('imageActions').innerHTML = `
+  <div class="text-center text-white/70 py-4">
+    <p class="loading-dots">Uploading</p>
+  </div>
+`;
   
   try {
     // Upload to Supabase Storage
