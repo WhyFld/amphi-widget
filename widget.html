@@ -763,10 +763,10 @@ function renderVideoUpload(campaign) {
                   class="w-full py-3 bg-gray-800 text-white rounded-xl hover:bg-gray-700 transition font-semibold">
             🔄 Retake
           </button>
-          <button onclick="submitVideo()" 
-                  class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-            Submit & Get Paid →
-          </button>
+         <button onclick="submitVideo()" 
+        class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+  ${campaign.reward > 0 ? 'Submit & Get Paid →' : 'Submit →'}
+</button>
         </div>
       </div>
     </div>
@@ -798,9 +798,9 @@ function renderAudioUpload(campaign) {
             🔄 Retake
           </button>
           <button onclick="submitAudio()" 
-                  class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-            Submit & Get Paid →
-          </button>
+        class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+  ${campaign.reward > 0 ? 'Submit & Get Paid →' : 'Submit →'}
+</button>
         </div>
       </div>
     </div>
@@ -1245,9 +1245,9 @@ function renderImageUpload(campaign) {
             🔄 Choose Different Photo
           </button>
           <button onclick="submitImage()" 
-                  class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-            Submit & Get Paid →
-          </button>
+        class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+  ${campaign.reward > 0 ? 'Submit & Get Paid →' : 'Submit →'}
+</button>
         </div>
       </div>
     </div>
