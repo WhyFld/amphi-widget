@@ -481,36 +481,39 @@ function renderStep1() {
   }
 
   document.getElementById('content').innerHTML = `
-   
+    ${campaign.reward > 0 ? `
+      <div class="text-center mb-6">
+        <p class="text-white/90 text-lg font-semibold">Share feedback, get rewarded</p>
+      </div>
+    ` : ''}
 
     <div class="campaign-area rounded-2xl p-8 mb-6 min-h-[280px] flex items-center justify-center">
       <div class="text-center">
-       <div class="text-6xl mb-4">${campaign.icon}</div>
-<div class="text-white text-2xl font-bold mb-3">${
-  campaign.type === 'poll' ? 'POLL' : 
-  campaign.type === 'text_feedback' ? 'FEEDBACK' : 
-  campaign.type === 'video_upload' ? 'VIDEO' : 
-  campaign.type === 'audio_upload' ? 'AUDIO' : 'IMAGE'
-}</div>
-<p class="text-white/70 text-base mb-2">${
-  campaign.type === 'poll' ? 'Answer a quick poll' : 
-  campaign.type === 'text_feedback' ? 'Share your thoughts' : 
-  campaign.type === 'video_upload' ? 'Record a short video' : 
-  campaign.type === 'audio_upload' ? 'Share a voice note' : 'Upload a photo'
-}</p>
-<p class="text-white/50 text-sm">Takes ${
-  campaign.type === 'poll' ? '30 seconds' : 
-  campaign.type === 'text_feedback' ? '2 minutes' : 
-  campaign.type === 'video_upload' ? '3 minutes' : 
-  campaign.type === 'audio_upload' ? '2 minutes' : '1 minute'
-}</p>
+        <div class="text-6xl mb-4">${campaign.icon}</div>
+        <div class="text-white text-2xl font-bold mb-3">${
+          campaign.type === 'poll' ? 'POLL' : 
+          campaign.type === 'text_feedback' ? 'FEEDBACK' : 
+          campaign.type === 'video_upload' ? 'VIDEO' : 
+          campaign.type === 'audio_upload' ? 'AUDIO' : 'IMAGE'
+        }</div>
+        <p class="text-white/70 text-base mb-2">${
+          campaign.type === 'poll' ? 'Answer a quick poll' : 
+          campaign.type === 'text_feedback' ? 'Share your thoughts' : 
+          campaign.type === 'video_upload' ? 'Record a short video' : 
+          campaign.type === 'audio_upload' ? 'Share a voice note' : 'Upload a photo'
+        }</p>
+        <p class="text-white/50 text-sm">Takes ${
+          campaign.type === 'poll' ? '30 seconds' : 
+          campaign.type === 'text_feedback' ? '2 minutes' : 
+          campaign.type === 'video_upload' ? '3 minutes' : 
+          campaign.type === 'audio_upload' ? '2 minutes' : '1 minute'
+        }</p>
       </div>
     </div>
 
-
     <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-    ${campaign.reward > 0 ? 'Start & Earn £' + campaign.reward + ' →' : 'Start →'}
-</button>
+      ${campaign.reward > 0 ? 'Start & Earn £' + campaign.reward + ' →' : 'Start →'}
+    </button>
   `;
 }
 
