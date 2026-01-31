@@ -411,22 +411,6 @@ if (isCampaignCompleted(campaigns[0].id)) {
   
   return;
 }
-
-// CHECK SUBMISSION LIMIT: Hide if campaign is full
-if (campaigns[0].submissions_count >= campaigns[0].submissions_limit) {
-  console.log('Campaign limit reached — hiding widget');
-  
-  // Hide widget popup AND icon permanently
-  document.getElementById('widget-root').style.display = 'none';
-  
-  window.parent.postMessage({
-    action: 'hide_icon_forever',
-    brandId: BRAND_ID,
-    campaignId: campaigns[0].id
-  }, '*');
-  
-  return;
-}
     
     renderStep1();
 
