@@ -1501,31 +1501,26 @@ async function handleFreeSubmission() {
       })
     });
     
-    // CHECK IF LIMIT REACHED - AUTO-DEACTIVATE CAMPAIGN
-    const countResponse = await fetch(
-      SUPABASE_URL + '/rest/v1/submissions?task_id=eq.' + campaign.id + '&status=eq.approved&select=id',
+// CHECK IF LIMIT REACHED - AUTO-DEACTIVATE CAMPAIGN
+    const deactivateResponse = await fetch(
+      SUPABASE_URL + '/rest/v1/rpc/auto_deactivate_if_limit_reached',
       {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        }
-      }
-    );
-    const approvedSubmissions = await countResponse.json();
-    
-    if (approvedSubmissions.length >= campaign.submissions_limit) {
-      console.log('🔴 Limit reached (' + approvedSubmissions.length + '/' + campaign.submissions_limit + ') - deactivating campaign');
-      
-      await fetch(SUPABASE_URL + '/rest/v1/tasks?id=eq.' + campaign.id, {
-        method: 'PATCH',
+        method: 'POST',
         headers: {
           'apikey': SUPABASE_KEY,
           'Authorization': 'Bearer ' + SUPABASE_KEY,
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({ is_active: false })
-      });
+        body: JSON.stringify({ campaign_uuid: campaign.id })
+      }
+    );
+    
+    const limitReached = await deactivateResponse.json();
+    
+    if (limitReached) {
+      console.log('🔴 Limit reached - campaign deactivated');
     }
+    
     
     // Mark campaign completed for this user
     markCampaignCompleted(campaign.id);
