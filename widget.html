@@ -263,11 +263,11 @@
 // ============================================
 // SUPABASE CONNECTION
 // ============================================
-// SECURITY WARNING: Old credentials have been removed due to public exposure
-// TODO: Replace with NEW Supabase credentials after rotating keys
-// IMPORTANT: Enable Row Level Security (RLS) on all tables before deployment
-const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+// ✅ SECURITY: Using NEW rotated Supabase credentials
+// This is the anon/publishable key - safe to be in client-side code
+// Security is enforced by Row Level Security (RLS) policies in Supabase
+const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_i8Sp6lgck15hPffuuWNuOw_A4_5Fb15';
 // ✅ NEW: Read brand ID from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 const BRAND_ID = urlParams.get('brand') || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2'; // Fallback

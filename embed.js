@@ -19,11 +19,11 @@
   async function checkCampaignCompletion() {
     try {
       // Fetch active campaign for this brand
-      // SECURITY: Replace these with your NEW Supabase credentials
-      // Old keys have been exposed and should be rotated immediately
-      // TODO: Replace with fresh credentials from Supabase dashboard
-      const SUPABASE_URL = 'YOUR_SUPABASE_URL';
-      const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
+      // ✅ SECURITY: Using NEW rotated Supabase credentials
+      // This is the anon/publishable key - safe to be in client-side code
+      // Security is enforced by Row Level Security (RLS) policies in Supabase
+      const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
+      const SUPABASE_KEY = 'sb_publishable_i8Sp6lgck15hPffuuWNuOw_A4_5Fb15';
       
       const response = await fetch(
         `${SUPABASE_URL}/rest/v1/tasks?brand_id=eq.${BRAND_ID}&is_active=eq.true&select=id`,
