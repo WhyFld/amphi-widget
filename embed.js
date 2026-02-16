@@ -19,8 +19,11 @@
   async function checkCampaignCompletion() {
     try {
       // Fetch active campaign for this brand
-      const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
-      const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
+      // SECURITY: Replace these with your NEW Supabase credentials
+      // Old keys have been exposed and should be rotated immediately
+      // TODO: Replace with fresh credentials from Supabase dashboard
+      const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+      const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
       
       const response = await fetch(
         `${SUPABASE_URL}/rest/v1/tasks?brand_id=eq.${BRAND_ID}&is_active=eq.true&select=id`,

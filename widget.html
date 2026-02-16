@@ -263,8 +263,11 @@
 // ============================================
 // SUPABASE CONNECTION
 // ============================================
-const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
+// SECURITY WARNING: Old credentials have been removed due to public exposure
+// TODO: Replace with NEW Supabase credentials after rotating keys
+// IMPORTANT: Enable Row Level Security (RLS) on all tables before deployment
+const SUPABASE_URL = 'YOUR_SUPABASE_URL';
+const SUPABASE_KEY = 'YOUR_SUPABASE_ANON_KEY';
 // ✅ NEW: Read brand ID from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 const BRAND_ID = urlParams.get('brand') || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2'; // Fallback
