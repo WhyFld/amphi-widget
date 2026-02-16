@@ -4,8 +4,8 @@
 
   // Configuration
   const WIDGET_URL = window.location.hostname === 'localhost' 
-    ? 'http://localhost:3000/widget.html'
-    : 'https://amphi-widget.vercel.app/widget.html';
+  ? 'http://localhost:3000/widget.html'
+  : 'https://widget.getamphi.com/widget.html';
 
   // Get brand ID from window (set by brand's embed code)
   const BRAND_ID = window.AMPHI_BRAND_ID || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2';
