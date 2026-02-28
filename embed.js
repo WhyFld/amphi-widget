@@ -53,8 +53,7 @@
     }
   }
   
-// Create minimized icon (bottom-right corner)
-  function createMinimizedIcon() {
+function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
     minimizedIcon.style.cssText = `
@@ -89,7 +88,6 @@
 
       const coin = new THREE.Group();
 
-      // Main coin body (lime green cylinder)
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
       const bodyMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xCCFF66
@@ -98,66 +96,36 @@
       body.rotation.x = Math.PI / 2;
       coin.add(body);
 
-     // Create ridged edge with actual 3D grooves around the circumference
-      const ridgeCount = 40; // Fewer ridges so you can see gaps
-      
+      const ridgeCount = 40;
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
-        
-        // Very thin ridges with gaps between
         const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
         const ridgeMaterial = new THREE.MeshBasicMaterial({ 
           color: 0x000000
         });
         const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
-        
         ridge.position.x = Math.cos(angle) * 1.04;
         ridge.position.y = Math.sin(angle) * 1.04;
         ridge.position.z = 0;
-        
         ridge.rotation.z = angle;
-        
-        coin.add(ridge);
-      }
-        
-        // BoxGeometry(width-tangential, depth-radial, height-coin-thickness)
-        const ridgeGeometry = new THREE.BoxGeometry(0.015, 0.08, 0.32);
-        const ridgeMaterial = new THREE.MeshBasicMaterial({ 
-          color: 0x000000
-        });
-        const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
-        
-        // Position OUTSIDE the coin edge
-        ridge.position.x = Math.cos(angle) * 1.04;
-        ridge.position.y = Math.sin(angle) * 1.04;
-        ridge.position.z = 0;
-        
-        // Rotate to face outward radially
-        ridge.rotation.z = angle;
-        
         coin.add(ridge);
       }
 
-      // Create text textures with Unica77 font
       const createTextTexture = (text) => {
         const canvas = document.createElement('canvas');
         canvas.width = 512;
         canvas.height = 512;
         const ctx = canvas.getContext('2d');
-        
         ctx.fillStyle = '#CCFF66';
         ctx.fillRect(0, 0, 512, 512);
-        
         ctx.fillStyle = '#000000';
         ctx.font = 'bold 100px Unica77, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(text, 256, 256);
-        
         return new THREE.CanvasTexture(canvas);
       };
 
-      // Front face (SHARE)
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
       const frontMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('SHARE')
@@ -166,7 +134,6 @@
       front.position.z = 0.151;
       coin.add(front);
 
-      // Back face (EARN)
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
       const backMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('EARN')
@@ -187,17 +154,14 @@
       
       function animate() {
         requestAnimationFrame(animate);
-        
         rotation += flipSpeed;
         coin.rotation.y = rotation;
-        
         const normalizedRot = rotation % (Math.PI * 2);
         if (normalizedRot < 0.1 || (normalizedRot > Math.PI - 0.1 && normalizedRot < Math.PI + 0.1)) {
           flipSpeed = 0.01;
         } else {
           flipSpeed = 0.04;
         }
-        
         renderer.render(scene, camera);
       }
       animate();
