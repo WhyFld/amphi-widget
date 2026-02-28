@@ -52,6 +52,7 @@
       return false; // Show icon on error (safer)
     }
   }
+  
 // Create minimized icon (bottom-right corner)
   function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
@@ -86,49 +87,69 @@
       });
       renderer.setSize(90, 90);
 
-      // Create coin group
       const coin = new THREE.Group();
 
-      // Main coin body (cylinder = thick disc)
+      // Main coin body (lime green cylinder)
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
       const bodyMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xCCFF66 // Lime green
+        color: 0xCCFF66
       });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.rotation.x = Math.PI / 2; // Lay flat
+      body.rotation.x = Math.PI / 2;
       coin.add(body);
 
-      // Black edge with ridges
-      const edgeGeometry = new THREE.CylinderGeometry(1.02, 1.02, 0.3, 64);
+      // Black edge with VERTICAL ridges (not zig-zag)
+      const edgeCanvas = document.createElement('canvas');
+      edgeCanvas.width = 512;
+      edgeCanvas.height = 64;
+      const edgeCtx = edgeCanvas.getContext('2d');
+      
+      // Black background
+      edgeCtx.fillStyle = '#000000';
+      edgeCtx.fillRect(0, 0, 512, 64);
+      
+      // Draw vertical lime green lines (ridges)
+      edgeCtx.strokeStyle = '#CCFF66';
+      edgeCtx.lineWidth = 2;
+      for (let i = 0; i < 512; i += 8) {
+        edgeCtx.beginPath();
+        edgeCtx.moveTo(i, 0);
+        edgeCtx.lineTo(i, 64);
+        edgeCtx.stroke();
+      }
+      
+      const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
+      edgeTexture.wrapS = THREE.RepeatWrapping;
+      
+      const edgeGeometry = new THREE.CylinderGeometry(1.01, 1.01, 0.3, 64);
       const edgeMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0x000000,
-        wireframe: true
+        map: edgeTexture
       });
       const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
       edge.rotation.x = Math.PI / 2;
       coin.add(edge);
 
-      // Create text textures
+      // Create text textures with Unica77 font
       const createTextTexture = (text) => {
         const canvas = document.createElement('canvas');
-        canvas.width = 256;
-        canvas.height = 256;
+        canvas.width = 512;
+        canvas.height = 512;
         const ctx = canvas.getContext('2d');
         
         ctx.fillStyle = '#CCFF66';
-        ctx.fillRect(0, 0, 256, 256);
+        ctx.fillRect(0, 0, 512, 512);
         
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 60px Arial';
+        ctx.font = 'bold 100px Unica77, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text, 128, 128);
+        ctx.fillText(text, 256, 256);
         
         return new THREE.CanvasTexture(canvas);
       };
 
-      // Front face (SHARE)
-      const frontGeometry = new THREE.CircleGeometry(1, 64);
+      // Front face (SHARE) - BIGGER to prevent edge showing through
+      const frontGeometry = new THREE.CircleGeometry(1.05, 64);
       const frontMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('SHARE')
       });
@@ -136,40 +157,36 @@
       front.position.z = 0.151;
       coin.add(front);
 
-      // Back face (EARN)
-      const backGeometry = new THREE.CircleGeometry(1, 64);
+      // Back face (EARN) - BIGGER to prevent edge showing through
+      const backGeometry = new THREE.CircleGeometry(1.05, 64);
       const backMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('EARN')
       });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
-      back.rotation.y = Math.PI; // Flip text so it reads correctly
+      back.rotation.y = Math.PI;
       coin.add(back);
 
       scene.add(coin);
 
-      // Light
       const light = new THREE.DirectionalLight(0xffffff, 1);
       light.position.set(0, 0, 1);
       scene.add(light);
 
-      // Animation with flip mechanic
       let rotation = 0;
       let flipSpeed = 0.02;
       
       function animate() {
         requestAnimationFrame(animate);
         
-        // Continuous Y-axis rotation with flip effect
         rotation += flipSpeed;
         coin.rotation.y = rotation;
         
-        // When showing each side, slow down briefly
         const normalizedRot = rotation % (Math.PI * 2);
         if (normalizedRot < 0.1 || (normalizedRot > Math.PI - 0.1 && normalizedRot < Math.PI + 0.1)) {
-          flipSpeed = 0.01; // Slow down when showing SHARE or EARN
+          flipSpeed = 0.01;
         } else {
-          flipSpeed = 0.04; // Speed up during the flip
+          flipSpeed = 0.04;
         }
         
         renderer.render(scene, camera);
