@@ -53,8 +53,8 @@
     }
   }
 
-  // Create minimized icon (bottom-right corner)
- // Create minimized icon (bottom-right corner)
+
+// Create minimized icon (bottom-right corner)
   function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
@@ -68,7 +68,6 @@
       z-index: 999999;
     `;
 
-    // Create canvas for Three.js
     const canvas = document.createElement('canvas');
     canvas.width = 80;
     canvas.height = 80;
@@ -79,7 +78,7 @@
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
 
-    // Load Three.js and create 3D sphere
+    // Load Three.js
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
@@ -94,50 +93,72 @@
       });
       renderer.setSize(80, 80);
 
-      // Create sphere geometry
-      const geometry = new THREE.SphereGeometry(1, 32, 32);
+      // Create black glass sphere
+      const geometry = new THREE.SphereGeometry(1, 64, 64);
       
-      // Create material with lime green color
-      const material = new THREE.MeshPhongMaterial({
-        color: 0xCCFF66,
-        shininess: 100,
-        specular: 0xffffff
+      const material = new THREE.MeshPhysicalMaterial({
+        color: 0x000000,
+        metalness: 0.1,
+        roughness: 0.1,
+        transmission: 0.9, // Glass transparency
+        thickness: 0.5,
+        envMapIntensity: 2,
+        clearcoat: 1,
+        clearcoatRoughness: 0.1,
+        ior: 1.5, // Glass refraction index
       });
       
       const sphere = new THREE.Mesh(geometry, material);
       scene.add(sphere);
 
-      // Add strong directional light (key light from top-left)
-      const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
-      keyLight.position.set(-2, 2, 3);
-      scene.add(keyLight);
+      // Create environment map for reflections (rainbow colors)
+      const envTexture = new THREE.DataTexture(
+        new Uint8Array([
+          255, 0, 0,     // Red
+          255, 127, 0,   // Orange
+          255, 255, 0,   // Yellow
+          0, 255, 0,     // Green
+          0, 0, 255,     // Blue
+          127, 0, 255,   // Purple
+        ]),
+        6, 1,
+        THREE.RGBFormat
+      );
+      envTexture.needsUpdate = true;
+      
+      const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256);
+      const cubeCamera = new THREE.CubeCamera(0.1, 10, cubeRenderTarget);
+      scene.add(cubeCamera);
+      
+      material.envMap = cubeRenderTarget.texture;
 
-      // Add fill light (softer from opposite side)
-      const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
-      fillLight.position.set(2, 0, -1);
-      scene.add(fillLight);
+      // Bright white light to show glass quality
+      const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
+      light1.position.set(2, 2, 2);
+      scene.add(light1);
 
-      // Add ambient light (overall illumination)
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      const light2 = new THREE.DirectionalLight(0xff00ff, 0.8);
+      light2.position.set(-2, -1, 1);
+      scene.add(light2);
+
+      const light3 = new THREE.DirectionalLight(0x00ffff, 0.8);
+      light3.position.set(0, -2, -2);
+      scene.add(light3);
+
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
       scene.add(ambientLight);
 
-      // Animation loop
+      // Slow rotation
       function animate() {
         requestAnimationFrame(animate);
-        sphere.rotation.y += 0.01; // Rotate around Y axis
+        sphere.rotation.y += 0.005; // Slow speed (half of before)
         renderer.render(scene, camera);
       }
       animate();
-
-      // Pause on hover
-      minimizedIcon.addEventListener('mouseenter', () => {
-        sphere.rotation.y = sphere.rotation.y; // Freeze rotation
-      });
     };
     
     document.head.appendChild(script);
-  }
-  
+  }  
   // Create widget container (iframe)
   function createWidgetContainer() {
     widgetContainer = document.createElement('div');
