@@ -53,7 +53,7 @@
     }
   }
   
-ffunction createMinimizedIcon() {
+function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
     minimizedIcon.style.cssText = `
