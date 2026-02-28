@@ -99,10 +99,26 @@
       coin.add(body);
 
      // Create ridged edge with actual 3D grooves around the circumference
-      const ridgeCount = 80;
+      const ridgeCount = 40; // Fewer ridges so you can see gaps
       
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
+        
+        // Very thin ridges with gaps between
+        const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ 
+          color: 0x000000
+        });
+        const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
+        
+        ridge.position.x = Math.cos(angle) * 1.04;
+        ridge.position.y = Math.sin(angle) * 1.04;
+        ridge.position.z = 0;
+        
+        ridge.rotation.z = angle;
+        
+        coin.add(ridge);
+      }
         
         // BoxGeometry(width-tangential, depth-radial, height-coin-thickness)
         const ridgeGeometry = new THREE.BoxGeometry(0.015, 0.08, 0.32);
