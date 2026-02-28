@@ -167,37 +167,50 @@ function createMinimizedIcon() {
       light.position.set(0, 0, 1);
       scene.add(light);
 
-    let rotation = 0;
-      let speed = 0;
-      let phase = 'pausing'; // 'pausing', 'spinning'
-      let pauseTimer = 0;
-      let spinsCompleted = 0;
+   let rotation = 0;
+      let phase = 'showingSHARE'; // 'showingSHARE', 'spinning', 'showingEARN'
+      let timer = 0;
       
       function animate() {
         requestAnimationFrame(animate);
         
-        if (phase === 'pausing') {
-          // Pause on SHARE or EARN
-          speed *= 0.95; // Slow down smoothly
-          pauseTimer++;
-          
-          if (pauseTimer > 60) { // Pause for ~1 second (60 frames)
-            phase = 'spinning';
-            pauseTimer = 0;
-            spinsCompleted = 0;
+        if (phase === 'showingSHARE') {
+          // Completely still, showing SHARE
+          timer++;
+          if (timer > 60) { // Pause for 1 second (60 frames at 60fps)
+            phase = 'spinningToEARN';
+            timer = 0;
           }
-        } else if (phase === 'spinning') {
-          // Speed up and do multiple spins
-          speed = 0.08; // Fast spin
-          spinsCompleted += speed / (Math.PI * 2);
+        } else if (phase === 'spinningToEARN') {
+          // Fast spin for 0.5 seconds (30 frames)
+          rotation += 0.21; // Fast speed (completes π in ~15 frames = 0.25 sec)
+          timer++;
           
-          // After 2.5 full rotations, prepare to pause on other side
-          if (spinsCompleted > 2.5) {
-            phase = 'pausing';
+          if (timer > 30) { // Spin for 0.5 seconds
+            rotation = Math.PI; // Lock to EARN position
+            phase = 'showingEARN';
+            timer = 0;
+          }
+        } else if (phase === 'showingEARN') {
+          // Completely still, showing EARN
+          timer++;
+          if (timer > 60) { // Pause for 1 second
+            phase = 'spinningToSHARE';
+            timer = 0;
+          }
+        } else if (phase === 'spinningToSHARE') {
+          // Fast spin back
+          rotation += 0.21;
+          timer++;
+          
+          if (timer > 30) { // Spin for 0.5 seconds
+            rotation = Math.PI * 2; // Lock to SHARE position
+            phase = 'showingSHARE';
+            timer = 0;
+            rotation = 0; // Reset to 0 for clean loop
           }
         }
         
-        rotation += speed;
         coin.rotation.y = rotation;
         renderer.render(scene, camera);
       }
