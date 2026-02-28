@@ -142,25 +142,23 @@ function createMinimizedIcon() {
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
       coin.add(back);
-      // Add black edge rings on front and back
-      const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.06, 64);
+
+      const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
       
-      // Front edge ring
       const frontEdgeMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x000000,
         side: THREE.DoubleSide
       });
       const frontEdge = new THREE.Mesh(edgeRingGeometry, frontEdgeMaterial);
-      frontEdge.position.z = 0.151;
+      frontEdge.position.z = 0.16;
       coin.add(frontEdge);
       
-      // Back edge ring
       const backEdgeMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x000000,
         side: THREE.DoubleSide
       });
       const backEdge = new THREE.Mesh(edgeRingGeometry, backEdgeMaterial);
-      backEdge.position.z = -0.151;
+      backEdge.position.z = -0.16;
       coin.add(backEdge);
 
       scene.add(coin);
