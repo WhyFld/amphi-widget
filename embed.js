@@ -98,11 +98,23 @@
       body.rotation.x = Math.PI / 2;
       coin.add(body);
 
-      // Black edge with VERTICAL ridges (not zig-zag)
-      const edgeCanvas = document.createElement('canvas');
-      edgeCanvas.width = 512;
-      edgeCanvas.height = 64;
-      const edgeCtx = edgeCanvas.getContext('2d');
+      // Create ridged edge with actual 3D grooves
+      const ridgeCount = 80;
+      for (let i = 0; i < ridgeCount; i++) {
+        const angle = (i / ridgeCount) * Math.PI * 2;
+        const ridgeGeometry = new THREE.BoxGeometry(0.03, 0.3, 0.05);
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ 
+          color: 0x000000
+        });
+        const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
+        
+        // Position ridge around the circumference
+        ridge.position.x = Math.cos(angle) * 1.01;
+        ridge.position.y = Math.sin(angle) * 1.01;
+        ridge.rotation.z = angle;
+        
+        coin.add(ridge);
+      }
       
       // Black background
       edgeCtx.fillStyle = '#000000';
