@@ -98,26 +98,25 @@
       body.rotation.x = Math.PI / 2;
       coin.add(body);
 
-      // Create ridged edge with actual 3D grooves around the circumference
-      const ridgeCount = 60;
-      const coinRadius = 1.0;
-      const ridgeHeight = 0.32;
-      const ridgeWidth = 0.02;
-      const ridgeDepth = 0.06;
+     // Create ridged edge with actual 3D grooves around the circumference
+      const ridgeCount = 80;
       
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
         
-        const ridgeGeometry = new THREE.BoxGeometry(ridgeWidth, ridgeHeight, ridgeDepth);
+        // BoxGeometry(width-tangential, depth-radial, height-coin-thickness)
+        const ridgeGeometry = new THREE.BoxGeometry(0.015, 0.08, 0.32);
         const ridgeMaterial = new THREE.MeshBasicMaterial({ 
           color: 0x000000
         });
         const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
         
-        ridge.position.x = Math.cos(angle) * (coinRadius + ridgeDepth/2);
-        ridge.position.y = Math.sin(angle) * (coinRadius + ridgeDepth/2);
+        // Position OUTSIDE the coin edge
+        ridge.position.x = Math.cos(angle) * 1.04;
+        ridge.position.y = Math.sin(angle) * 1.04;
         ridge.position.z = 0;
         
+        // Rotate to face outward radially
         ridge.rotation.z = angle;
         
         coin.add(ridge);
