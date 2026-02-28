@@ -84,11 +84,10 @@ function createMinimizedIcon() {
         alpha: true,
         antialias: true
       });
-      renderer.setSize(90, 90);
+      renderer.setSize(180, 180);
 
       const coin = new THREE.Group();
 
-      // Main coin body (plain lime green, no text)
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
       const bodyMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xCCFF66
@@ -97,7 +96,6 @@ function createMinimizedIcon() {
       body.rotation.x = Math.PI / 2;
       coin.add(body);
 
-      // Ridges
       const ridgeCount = 40;
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
@@ -113,7 +111,6 @@ function createMinimizedIcon() {
         coin.add(ridge);
       }
 
-      // Plain front face (no text)
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
       const frontMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xCCFF66
@@ -122,7 +119,6 @@ function createMinimizedIcon() {
       front.position.z = 0.151;
       coin.add(front);
 
-      // Plain back face (no text)
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
       const backMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xCCFF66
@@ -131,7 +127,6 @@ function createMinimizedIcon() {
       back.position.z = -0.151;
       coin.add(back);
 
-      // Black edge rings
       const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
       
       const frontEdgeMaterial = new THREE.MeshBasicMaterial({ 
@@ -150,63 +145,61 @@ function createMinimizedIcon() {
       backEdge.position.z = -0.16;
       coin.add(backEdge);
 
-      // Create curved text "SHARE & EARN" around top edge
-      const createCurvedText = () => {
+      scene.add(coin);
+
+      const createCurvedText = (scene) => {
         const text = "SHARE & EARN";
-        const radius = 1.3; // Distance from center
-        const totalAngle = Math.PI; // Spread across top half (180 degrees)
-        const startAngle = -totalAngle / 2; // Start from left
+        const radius = 1.35;
+        const totalAngle = Math.PI * 0.8;
+        const startAngle = -totalAngle / 2;
         
         for (let i = 0; i < text.length; i++) {
           const char = text[i];
-          if (char === ' ') continue; // Skip spaces
+          if (char === ' ') continue;
           
           const angle = startAngle + (i / (text.length - 1)) * totalAngle;
           
-          // Create canvas for each letter
           const canvas = document.createElement('canvas');
-          canvas.width = 64;
-          canvas.height = 64;
+          canvas.width = 128;
+          canvas.height = 128;
           const ctx = canvas.getContext('2d');
           
+          ctx.fillStyle = '#FFFFFF';
+          ctx.fillRect(0, 0, 128, 128);
+          
           ctx.fillStyle = '#000000';
-          ctx.font = 'bold 48px Unica77, Arial, sans-serif';
+          ctx.font = 'bold 80px Unica77, Arial, sans-serif';
           ctx.textAlign = 'center';
           ctx.textBaseline = 'middle';
-          ctx.fillText(char, 32, 32);
+          ctx.fillText(char, 64, 64);
           
           const texture = new THREE.CanvasTexture(canvas);
-          const letterGeometry = new THREE.PlaneGeometry(0.15, 0.15);
+          const letterGeometry = new THREE.PlaneGeometry(0.25, 0.25);
           const letterMaterial = new THREE.MeshBasicMaterial({ 
             map: texture,
-            transparent: true
+            transparent: false
           });
           const letter = new THREE.Mesh(letterGeometry, letterMaterial);
           
-          // Position letter around circle
           letter.position.x = Math.cos(angle) * radius;
           letter.position.y = Math.sin(angle) * radius;
           letter.position.z = 0;
           
-          // Rotate letter to face outward
           letter.rotation.z = angle + Math.PI / 2;
           
-          coin.add(letter);
+          scene.add(letter);
         }
       };
       
-      createCurvedText();
-
-      scene.add(coin);
+      createCurvedText(scene);
 
       const light = new THREE.DirectionalLight(0xffffff, 1);
       light.position.set(0, 0, 1);
       scene.add(light);
 
-      // Continuous slow rotation
       function animate() {
         requestAnimationFrame(animate);
-        coin.rotation.y += 0.01; // Slow continuous spin
+        coin.rotation.y += 0.01;
         renderer.render(scene, camera);
       }
       animate();
