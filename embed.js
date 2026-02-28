@@ -61,33 +61,44 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 60px;
-      height: 60px;
-      background: linear-gradient(135deg, #CCFF66 0%, #b8e659 100%);
-      border-radius: 50%;
-      box-shadow: 0 4px 20px rgba(204, 255, 102, 0.4);
+      width: 80px;
+      height: 80px;
+      background: rgba(204, 255, 102, 0.25);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(204, 255, 102, 0.4);
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(204, 255, 102, 0.3);
       cursor: pointer;
       z-index: 999999;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      font-size: 24px;
+      font-family: Arial, sans-serif;
+      font-weight: 700;
+      color: #000;
+      line-height: 1.2;
       transition: all 0.3s ease;
-      animation: amphi-pulse 2s infinite;
+      animation: amphi-shimmer 3s infinite;
     `;
-    minimizedIcon.innerHTML = '💬';
-    minimizedIcon.title = 'Open AMPHI - Earn rewards!';
+    minimizedIcon.innerHTML = `
+      <div style="font-size: 14px;">SHARE</div>
+      <div style="font-size: 10px; margin: 2px 0;">&</div>
+      <div style="font-size: 14px;">EARN</div>
+    `;
+    minimizedIcon.title = 'Share & Earn with AMPHI!';
 
-    // Pulse animation
+    // Shimmer animation
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes amphi-pulse {
+      @keyframes amphi-shimmer {
         0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(204, 255, 102, 0.6); }
+        50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(204, 255, 102, 0.4); }
       }
       #amphi-minimized-icon:hover {
-        transform: scale(1.1) !important;
-        box-shadow: 0 6px 30px rgba(204, 255, 102, 0.7) !important;
+        transform: scale(1.1) rotate(-3deg) !important;
+        box-shadow: 0 6px 30px rgba(204, 255, 102, 0.5) !important;
       }
     `;
     document.head.appendChild(style);
