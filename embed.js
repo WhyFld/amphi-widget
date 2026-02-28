@@ -53,7 +53,6 @@
     }
   }
 
-
 // Create minimized icon (bottom-right corner)
   function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
@@ -66,12 +65,14 @@
       height: 80px;
       cursor: pointer;
       z-index: 999999;
+      background: black;
+      border-radius: 50%;
     `;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 160; // Higher resolution
-    canvas.height = 160;
-    canvas.style.cssText = 'width: 80px; height: 80px; display: block;';
+    canvas.width = 200;
+    canvas.height = 200;
+    canvas.style.cssText = 'width: 80px; height: 80px; display: block; border-radius: 50%;';
     
     minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Click to share & earn!';
@@ -83,47 +84,45 @@
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-      camera.position.z = 3;
+      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
+      camera.position.z = 2.5;
 
       const renderer = new THREE.WebGLRenderer({ 
         canvas: canvas, 
         alpha: true,
         antialias: true 
       });
-      renderer.setSize(160, 160);
-      renderer.setClearColor(0x000000, 0);
+      renderer.setSize(200, 200);
 
-      // Create glass sphere - BIGGER
-      const geometry = new THREE.SphereGeometry(1.2, 64, 64);
-      
-      const material = new THREE.MeshStandardMaterial({
-        color: 0x111111,
-        metalness: 0.9,
-        roughness: 0.1,
-        transparent: true,
-        opacity: 0.95,
-        envMapIntensity: 1.5
+      // Simple black sphere with color lights
+      const geometry = new THREE.SphereGeometry(1, 32, 32);
+      const material = new THREE.MeshPhongMaterial({
+        color: 0x000000,
+        shininess: 150,
+        specular: 0xffffff
       });
       
       const sphere = new THREE.Mesh(geometry, material);
       scene.add(sphere);
 
-      // Proper lighting setup
-      const light1 = new THREE.DirectionalLight(0xffffff, 1);
-      light1.position.set(3, 3, 5);
-      scene.add(light1);
+      // White key light
+      const keyLight = new THREE.PointLight(0xffffff, 1.5);
+      keyLight.position.set(2, 2, 2);
+      scene.add(keyLight);
 
-      const light2 = new THREE.DirectionalLight(0xff00ff, 0.5);
-      light2.position.set(-3, -2, 2);
-      scene.add(light2);
+      // Pink accent light
+      const pinkLight = new THREE.PointLight(0xff1493, 1);
+      pinkLight.position.set(-2, -1, 1);
+      scene.add(pinkLight);
 
-      const light3 = new THREE.DirectionalLight(0x00ffff, 0.5);
-      light3.position.set(0, -3, -3);
-      scene.add(light3);
+      // Cyan accent light
+      const cyanLight = new THREE.PointLight(0x00ffff, 0.8);
+      cyanLight.position.set(0, -2, -1);
+      scene.add(cyanLight);
 
-      const ambientLight = new THREE.AmbientLight(0x404040, 1);
-      scene.add(ambientLight);
+      // Ambient light
+      const ambient = new THREE.AmbientLight(0x404040);
+      scene.add(ambient);
 
       // Slow rotation
       function animate() {
