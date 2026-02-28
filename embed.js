@@ -67,7 +67,6 @@ function createMinimizedIcon() {
     `;
 
     const canvas = document.createElement('canvas');
-    canvas.style.cssText = 'width: 90px; height: 90px; display: block;';
     minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Share & Earn!';
     minimizedIcon.addEventListener('click', openWidget);
@@ -78,14 +77,14 @@ function createMinimizedIcon() {
     script.onload = () => {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-      camera.position.z = 4.5;
+      camera.position.z = 3;
 
       const renderer = new THREE.WebGLRenderer({ 
         canvas: canvas, 
         alpha: true,
         antialias: true
       });
-      renderer.setSize(180, 180);
+      renderer.setSize(90, 90);
 
       const coin = new THREE.Group();
 
@@ -112,9 +111,24 @@ function createMinimizedIcon() {
         coin.add(ridge);
       }
 
+      const createTextTexture = (text) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 512;
+        canvas.height = 512;
+        const ctx = canvas.getContext('2d');
+        ctx.fillStyle = '#CCFF66';
+        ctx.fillRect(0, 0, 512, 512);
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 100px Unica77, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 256, 256);
+        return new THREE.CanvasTexture(canvas);
+      };
+
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
       const frontMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xCCFF66
+        map: createTextTexture('SHARE')
       });
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
@@ -122,10 +136,11 @@ function createMinimizedIcon() {
 
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
       const backMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xCCFF66
+        map: createTextTexture('EARN')
       });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
+      back.rotation.y = Math.PI;
       coin.add(back);
 
       const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
@@ -147,52 +162,6 @@ function createMinimizedIcon() {
       coin.add(backEdge);
 
       scene.add(coin);
-
-      const createCurvedText = (scene) => {
-        const text = "SHARE & EARN";
-        const radius = 1.35;
-        const totalAngle = Math.PI * 0.8;
-        const startAngle = -totalAngle / 2;
-        
-        for (let i = 0; i < text.length; i++) {
-          const char = text[i];
-          if (char === ' ') continue;
-          
-          const angle = startAngle + (i / (text.length - 1)) * totalAngle;
-          
-          const canvas = document.createElement('canvas');
-          canvas.width = 128;
-          canvas.height = 128;
-          const ctx = canvas.getContext('2d');
-          
-          ctx.fillStyle = '#FFFFFF';
-          ctx.fillRect(0, 0, 128, 128);
-          
-          ctx.fillStyle = '#000000';
-          ctx.font = 'bold 80px Unica77, Arial, sans-serif';
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(char, 64, 64);
-          
-          const texture = new THREE.CanvasTexture(canvas);
-          const letterGeometry = new THREE.PlaneGeometry(0.25, 0.25);
-          const letterMaterial = new THREE.MeshBasicMaterial({ 
-            map: texture,
-            transparent: false
-          });
-          const letter = new THREE.Mesh(letterGeometry, letterMaterial);
-          
-          letter.position.x = Math.cos(angle) * radius;
-          letter.position.y = Math.sin(angle) * radius;
-          letter.position.z = 0;
-          
-          letter.rotation.z = angle + Math.PI / 2;
-          
-          scene.add(letter);
-        }
-      };
-      
-      createCurvedText(scene);
 
       const light = new THREE.DirectionalLight(0xffffff, 1);
       light.position.set(0, 0, 1);
