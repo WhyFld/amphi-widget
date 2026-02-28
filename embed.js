@@ -69,9 +69,9 @@
     `;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 80;
-    canvas.height = 80;
-    canvas.style.cssText = 'width: 100%; height: 100%; display: block;';
+    canvas.width = 160; // Higher resolution
+    canvas.height = 160;
+    canvas.style.cssText = 'width: 80px; height: 80px; display: block;';
     
     minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Click to share & earn!';
@@ -84,81 +84,60 @@
     script.onload = () => {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-      camera.position.z = 2.5;
+      camera.position.z = 3;
 
       const renderer = new THREE.WebGLRenderer({ 
         canvas: canvas, 
         alpha: true,
         antialias: true 
       });
-      renderer.setSize(80, 80);
+      renderer.setSize(160, 160);
+      renderer.setClearColor(0x000000, 0);
 
-      // Create black glass sphere
-      const geometry = new THREE.SphereGeometry(1, 64, 64);
+      // Create glass sphere - BIGGER
+      const geometry = new THREE.SphereGeometry(1.2, 64, 64);
       
-      const material = new THREE.MeshPhysicalMaterial({
-        color: 0x000000,
-        metalness: 0.1,
+      const material = new THREE.MeshStandardMaterial({
+        color: 0x111111,
+        metalness: 0.9,
         roughness: 0.1,
-        transmission: 0.9, // Glass transparency
-        thickness: 0.5,
-        envMapIntensity: 2,
-        clearcoat: 1,
-        clearcoatRoughness: 0.1,
-        ior: 1.5, // Glass refraction index
+        transparent: true,
+        opacity: 0.95,
+        envMapIntensity: 1.5
       });
       
       const sphere = new THREE.Mesh(geometry, material);
       scene.add(sphere);
 
-      // Create environment map for reflections (rainbow colors)
-      const envTexture = new THREE.DataTexture(
-        new Uint8Array([
-          255, 0, 0,     // Red
-          255, 127, 0,   // Orange
-          255, 255, 0,   // Yellow
-          0, 255, 0,     // Green
-          0, 0, 255,     // Blue
-          127, 0, 255,   // Purple
-        ]),
-        6, 1,
-        THREE.RGBFormat
-      );
-      envTexture.needsUpdate = true;
-      
-      const cubeRenderTarget = new THREE.WebGLCubeRenderTarget(256);
-      const cubeCamera = new THREE.CubeCamera(0.1, 10, cubeRenderTarget);
-      scene.add(cubeCamera);
-      
-      material.envMap = cubeRenderTarget.texture;
-
-      // Bright white light to show glass quality
-      const light1 = new THREE.DirectionalLight(0xffffff, 1.5);
-      light1.position.set(2, 2, 2);
+      // Proper lighting setup
+      const light1 = new THREE.DirectionalLight(0xffffff, 1);
+      light1.position.set(3, 3, 5);
       scene.add(light1);
 
-      const light2 = new THREE.DirectionalLight(0xff00ff, 0.8);
-      light2.position.set(-2, -1, 1);
+      const light2 = new THREE.DirectionalLight(0xff00ff, 0.5);
+      light2.position.set(-3, -2, 2);
       scene.add(light2);
 
-      const light3 = new THREE.DirectionalLight(0x00ffff, 0.8);
-      light3.position.set(0, -2, -2);
+      const light3 = new THREE.DirectionalLight(0x00ffff, 0.5);
+      light3.position.set(0, -3, -3);
       scene.add(light3);
 
-      const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
+      const ambientLight = new THREE.AmbientLight(0x404040, 1);
       scene.add(ambientLight);
 
       // Slow rotation
       function animate() {
         requestAnimationFrame(animate);
-        sphere.rotation.y += 0.005; // Slow speed (half of before)
+        sphere.rotation.y += 0.005;
+        sphere.rotation.x += 0.002;
         renderer.render(scene, camera);
       }
       animate();
     };
     
     document.head.appendChild(script);
-  }  
+  }
+  
   // Create widget container (iframe)
   function createWidgetContainer() {
     widgetContainer = document.createElement('div');
