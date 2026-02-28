@@ -53,7 +53,7 @@
     }
   }
   
-function createMinimizedIcon() {
+ffunction createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
     minimizedIcon.style.cssText = `
@@ -88,6 +88,7 @@ function createMinimizedIcon() {
 
       const coin = new THREE.Group();
 
+      // Main coin body (plain lime green, no text)
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
       const bodyMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xCCFF66
@@ -96,6 +97,7 @@ function createMinimizedIcon() {
       body.rotation.x = Math.PI / 2;
       coin.add(body);
 
+      // Ridges
       const ridgeCount = 40;
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
@@ -111,38 +113,25 @@ function createMinimizedIcon() {
         coin.add(ridge);
       }
 
-      const createTextTexture = (text) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 512;
-        const ctx = canvas.getContext('2d');
-        ctx.fillStyle = '#CCFF66';
-        ctx.fillRect(0, 0, 512, 512);
-        ctx.fillStyle = '#000000';
-        ctx.font = 'bold 100px Unica77, Arial, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, 256, 256);
-        return new THREE.CanvasTexture(canvas);
-      };
-
+      // Plain front face (no text)
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
       const frontMaterial = new THREE.MeshBasicMaterial({ 
-        map: createTextTexture('SHARE')
+        color: 0xCCFF66
       });
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
 
+      // Plain back face (no text)
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
       const backMaterial = new THREE.MeshBasicMaterial({ 
-        map: createTextTexture('EARN')
+        color: 0xCCFF66
       });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
-      back.rotation.y = Math.PI;
       coin.add(back);
 
+      // Black edge rings
       const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
       
       const frontEdgeMaterial = new THREE.MeshBasicMaterial({ 
@@ -161,57 +150,63 @@ function createMinimizedIcon() {
       backEdge.position.z = -0.16;
       coin.add(backEdge);
 
+      // Create curved text "SHARE & EARN" around top edge
+      const createCurvedText = () => {
+        const text = "SHARE & EARN";
+        const radius = 1.3; // Distance from center
+        const totalAngle = Math.PI; // Spread across top half (180 degrees)
+        const startAngle = -totalAngle / 2; // Start from left
+        
+        for (let i = 0; i < text.length; i++) {
+          const char = text[i];
+          if (char === ' ') continue; // Skip spaces
+          
+          const angle = startAngle + (i / (text.length - 1)) * totalAngle;
+          
+          // Create canvas for each letter
+          const canvas = document.createElement('canvas');
+          canvas.width = 64;
+          canvas.height = 64;
+          const ctx = canvas.getContext('2d');
+          
+          ctx.fillStyle = '#000000';
+          ctx.font = 'bold 48px Unica77, Arial, sans-serif';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(char, 32, 32);
+          
+          const texture = new THREE.CanvasTexture(canvas);
+          const letterGeometry = new THREE.PlaneGeometry(0.15, 0.15);
+          const letterMaterial = new THREE.MeshBasicMaterial({ 
+            map: texture,
+            transparent: true
+          });
+          const letter = new THREE.Mesh(letterGeometry, letterMaterial);
+          
+          // Position letter around circle
+          letter.position.x = Math.cos(angle) * radius;
+          letter.position.y = Math.sin(angle) * radius;
+          letter.position.z = 0;
+          
+          // Rotate letter to face outward
+          letter.rotation.z = angle + Math.PI / 2;
+          
+          coin.add(letter);
+        }
+      };
+      
+      createCurvedText();
+
       scene.add(coin);
 
       const light = new THREE.DirectionalLight(0xffffff, 1);
       light.position.set(0, 0, 1);
       scene.add(light);
 
-   let rotation = 0;
-      let phase = 'showingSHARE'; // 'showingSHARE', 'spinning', 'showingEARN'
-      let timer = 0;
-      
+      // Continuous slow rotation
       function animate() {
         requestAnimationFrame(animate);
-        
-        if (phase === 'showingSHARE') {
-          // Completely still, showing SHARE
-          timer++;
-          if (timer > 60) { // Pause for 1 second (60 frames at 60fps)
-            phase = 'spinningToEARN';
-            timer = 0;
-          }
-        } else if (phase === 'spinningToEARN') {
-          // Fast spin for 0.5 seconds (30 frames)
-          rotation += 0.21; // Fast speed (completes π in ~15 frames = 0.25 sec)
-          timer++;
-          
-          if (timer > 30) { // Spin for 0.5 seconds
-            rotation = Math.PI; // Lock to EARN position
-            phase = 'showingEARN';
-            timer = 0;
-          }
-        } else if (phase === 'showingEARN') {
-          // Completely still, showing EARN
-          timer++;
-          if (timer > 60) { // Pause for 1 second
-            phase = 'spinningToSHARE';
-            timer = 0;
-          }
-        } else if (phase === 'spinningToSHARE') {
-          // Fast spin back
-          rotation += 0.21;
-          timer++;
-          
-          if (timer > 30) { // Spin for 0.5 seconds
-            rotation = Math.PI * 2; // Lock to SHARE position
-            phase = 'showingSHARE';
-            timer = 0;
-            rotation = 0; // Reset to 0 for clean loop
-          }
-        }
-        
-        coin.rotation.y = rotation;
+        coin.rotation.y += 0.01; // Slow continuous spin
         renderer.render(scene, camera);
       }
       animate();
