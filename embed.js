@@ -54,6 +54,7 @@
   }
 
   // Create minimized icon (bottom-right corner)
+ // Create minimized icon (bottom-right corner)
   function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
@@ -61,85 +62,82 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 70px;
-      height: 70px;
+      width: 80px;
+      height: 80px;
       cursor: pointer;
       z-index: 999999;
-      perspective: 1000px;
     `;
 
-    // Create the sphere
-    const sphere = document.createElement('div');
-    sphere.style.cssText = `
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-      background: radial-gradient(circle at 30% 30%, #e0ff99, #CCFF66 40%, #8fb83d 70%, #5a7a26);
-      box-shadow: 
-        0 10px 30px rgba(0, 0, 0, 0.3),
-        inset -5px -5px 20px rgba(0, 0, 0, 0.2),
-        inset 5px 5px 20px rgba(255, 255, 255, 0.3);
-      animation: amphi-rotate 4s linear infinite;
-      position: relative;
-      transform-style: preserve-3d;
-    `;
-
-    // Add highlight (glossy effect)
-    const highlight = document.createElement('div');
-    highlight.style.cssText = `
-      position: absolute;
-      top: 10%;
-      left: 20%;
-      width: 40%;
-      height: 40%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%);
-      border-radius: 50%;
-      filter: blur(8px);
-    `;
-
-    // Add outer glow
-    const glow = document.createElement('div');
-    glow.style.cssText = `
-      position: absolute;
-      top: -10px;
-      left: -10px;
-      right: -10px;
-      bottom: -10px;
-      background: radial-gradient(circle, rgba(204, 255, 102, 0.4) 0%, transparent 70%);
-      border-radius: 50%;
-      z-index: -1;
-      animation: amphi-glow 2s ease-in-out infinite;
-    `;
-
-    // Animation styles
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes amphi-rotate {
-        0% { transform: rotateY(0deg) rotateX(10deg); }
-        100% { transform: rotateY(360deg) rotateX(10deg); }
-      }
-      
-      @keyframes amphi-glow {
-        0%, 100% { opacity: 0.5; transform: scale(1); }
-        50% { opacity: 0.8; transform: scale(1.1); }
-      }
-      
-      #amphi-minimized-icon:hover > div {
-        animation-play-state: paused !important;
-        transform: scale(1.1) !important;
-      }
-    `;
-    document.head.appendChild(style);
-
-    sphere.appendChild(highlight);
-    minimizedIcon.appendChild(glow);
-    minimizedIcon.appendChild(sphere);
+    // Create canvas for Three.js
+    const canvas = document.createElement('canvas');
+    canvas.width = 80;
+    canvas.height = 80;
+    canvas.style.cssText = 'width: 100%; height: 100%; display: block;';
+    
+    minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Click to share & earn!';
-
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
-  }
 
+    // Load Three.js and create 3D sphere
+    const script = document.createElement('script');
+    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+    script.onload = () => {
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+      camera.position.z = 2.5;
+
+      const renderer = new THREE.WebGLRenderer({ 
+        canvas: canvas, 
+        alpha: true,
+        antialias: true 
+      });
+      renderer.setSize(80, 80);
+
+      // Create sphere geometry
+      const geometry = new THREE.SphereGeometry(1, 32, 32);
+      
+      // Create material with lime green color
+      const material = new THREE.MeshPhongMaterial({
+        color: 0xCCFF66,
+        shininess: 100,
+        specular: 0xffffff
+      });
+      
+      const sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
+
+      // Add strong directional light (key light from top-left)
+      const keyLight = new THREE.DirectionalLight(0xffffff, 1.2);
+      keyLight.position.set(-2, 2, 3);
+      scene.add(keyLight);
+
+      // Add fill light (softer from opposite side)
+      const fillLight = new THREE.DirectionalLight(0xffffff, 0.4);
+      fillLight.position.set(2, 0, -1);
+      scene.add(fillLight);
+
+      // Add ambient light (overall illumination)
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.3);
+      scene.add(ambientLight);
+
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        sphere.rotation.y += 0.01; // Rotate around Y axis
+        renderer.render(scene, camera);
+      }
+      animate();
+
+      // Pause on hover
+      minimizedIcon.addEventListener('mouseenter', () => {
+        sphere.rotation.y = sphere.rotation.y; // Freeze rotation
+      });
+    };
+    
+    document.head.appendChild(script);
+  }
+  
   // Create widget container (iframe)
   function createWidgetContainer() {
     widgetContainer = document.createElement('div');
