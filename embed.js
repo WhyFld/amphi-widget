@@ -65,16 +65,11 @@
       height: 80px;
       cursor: pointer;
       z-index: 999999;
-      filter: drop-shadow(0 0 20px rgba(204, 255, 102, 0.6));
     `;
 
     const canvas = document.createElement('canvas');
-    canvas.width = 200;
-    canvas.height = 200;
-    canvas.style.cssText = 'width: 80px; height: 80px; display: block;';
-    
     minimizedIcon.appendChild(canvas);
-    minimizedIcon.title = 'Click to share & earn!';
+    minimizedIcon.title = 'Click to earn!';
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
 
@@ -82,57 +77,73 @@
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 1000);
-      camera.position.z = 2.5;
+      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
+      camera.position.z = 2;
 
       const renderer = new THREE.WebGLRenderer({ 
         canvas: canvas, 
         alpha: true,
-        antialias: true 
+        antialias: true
       });
-      renderer.setSize(200, 200);
+      renderer.setSize(80, 80);
 
-      // Black glass sphere
-      const geometry = new THREE.SphereGeometry(1, 32, 32);
-      const material = new THREE.MeshPhongMaterial({
-        color: 0x1a1a1a,
-        shininess: 200,
-        specular: 0xffffff,
-        emissive: 0x000000
+      // Create canvas texture with grid pattern
+      const textureCanvas = document.createElement('canvas');
+      textureCanvas.width = 512;
+      textureCanvas.height = 512;
+      const ctx = textureCanvas.getContext('2d');
+      
+      // Black background
+      ctx.fillStyle = '#000000';
+      ctx.fillRect(0, 0, 512, 512);
+      
+      // Draw lime green grid lines
+      ctx.strokeStyle = '#CCFF66';
+      ctx.lineWidth = 3;
+      
+      // Vertical lines
+      for (let i = 0; i <= 512; i += 64) {
+        ctx.beginPath();
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, 512);
+        ctx.stroke();
+      }
+      
+      // Horizontal lines
+      for (let i = 0; i <= 512; i += 64) {
+        ctx.beginPath();
+        ctx.moveTo(0, i);
+        ctx.lineTo(512, i);
+        ctx.stroke();
+      }
+      
+      const texture = new THREE.CanvasTexture(textureCanvas);
+
+      // Sphere with grid texture
+      const geometry = new THREE.SphereGeometry(0.8, 32, 32);
+      const material = new THREE.MeshStandardMaterial({
+        map: texture,
+        metalness: 0.5,
+        roughness: 0.3
       });
       
       const sphere = new THREE.Mesh(geometry, material);
       scene.add(sphere);
 
-      // Strong rim light (lime green from behind)
-      const rimLight = new THREE.DirectionalLight(0xCCFF66, 2);
-      rimLight.position.set(0, 0, -3);
-      scene.add(rimLight);
+      // White light
+      const light = new THREE.DirectionalLight(0xffffff, 1.2);
+      light.position.set(1, 1, 1);
+      scene.add(light);
 
-      // Top white light
-      const topLight = new THREE.PointLight(0xffffff, 1.5);
-      topLight.position.set(1, 2, 2);
-      scene.add(topLight);
-
-      // Pink side light
-      const pinkLight = new THREE.PointLight(0xff1493, 1.2);
-      pinkLight.position.set(-2, 0, 1);
-      scene.add(pinkLight);
-
-      // Cyan bottom light
-      const cyanLight = new THREE.PointLight(0x00ffff, 1);
-      cyanLight.position.set(1, -1, 1);
-      scene.add(cyanLight);
-
-      // Ambient
-      const ambient = new THREE.AmbientLight(0x222222);
+      // Ambient light
+      const ambient = new THREE.AmbientLight(0x666666);
       scene.add(ambient);
 
-      // Slow rotation
+      // Rotate slowly
       function animate() {
         requestAnimationFrame(animate);
-        sphere.rotation.y += 0.005;
-        sphere.rotation.x += 0.002;
+        sphere.rotation.y += 0.01;
+        sphere.rotation.x += 0.005;
         renderer.render(scene, camera);
       }
       animate();
