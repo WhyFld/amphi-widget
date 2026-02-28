@@ -67,6 +67,7 @@ function createMinimizedIcon() {
     `;
 
     const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'width: 90px; height: 90px; display: block;';
     minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Share & Earn!';
     minimizedIcon.addEventListener('click', openWidget);
