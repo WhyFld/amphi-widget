@@ -61,47 +61,80 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 80px;
-      height: 80px;
-      background: rgba(204, 255, 102, 0.25);
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
-      border: 1px solid rgba(204, 255, 102, 0.4);
-      border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(204, 255, 102, 0.3);
+      width: 70px;
+      height: 70px;
       cursor: pointer;
       z-index: 999999;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      font-family: Arial, sans-serif;
-      font-weight: 700;
-      color: #000;
-      line-height: 1.2;
-      transition: all 0.3s ease;
-      animation: amphi-shimmer 3s infinite;
+      perspective: 1000px;
     `;
-    minimizedIcon.innerHTML = `
-      <div style="font-size: 14px;">SHARE</div>
-      <div style="font-size: 10px; margin: 2px 0;">&</div>
-      <div style="font-size: 14px;">EARN</div>
-    `;
-    minimizedIcon.title = 'Share & Earn with AMPHI!';
 
-    // Shimmer animation
+    // Create the sphere
+    const sphere = document.createElement('div');
+    sphere.style.cssText = `
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 30%, #e0ff99, #CCFF66 40%, #8fb83d 70%, #5a7a26);
+      box-shadow: 
+        0 10px 30px rgba(0, 0, 0, 0.3),
+        inset -5px -5px 20px rgba(0, 0, 0, 0.2),
+        inset 5px 5px 20px rgba(255, 255, 255, 0.3);
+      animation: amphi-rotate 4s linear infinite;
+      position: relative;
+      transform-style: preserve-3d;
+    `;
+
+    // Add highlight (glossy effect)
+    const highlight = document.createElement('div');
+    highlight.style.cssText = `
+      position: absolute;
+      top: 10%;
+      left: 20%;
+      width: 40%;
+      height: 40%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.6) 0%, transparent 60%);
+      border-radius: 50%;
+      filter: blur(8px);
+    `;
+
+    // Add outer glow
+    const glow = document.createElement('div');
+    glow.style.cssText = `
+      position: absolute;
+      top: -10px;
+      left: -10px;
+      right: -10px;
+      bottom: -10px;
+      background: radial-gradient(circle, rgba(204, 255, 102, 0.4) 0%, transparent 70%);
+      border-radius: 50%;
+      z-index: -1;
+      animation: amphi-glow 2s ease-in-out infinite;
+    `;
+
+    // Animation styles
     const style = document.createElement('style');
     style.textContent = `
-      @keyframes amphi-shimmer {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.05); box-shadow: 0 6px 25px rgba(204, 255, 102, 0.4); }
+      @keyframes amphi-rotate {
+        0% { transform: rotateY(0deg) rotateX(10deg); }
+        100% { transform: rotateY(360deg) rotateX(10deg); }
       }
-      #amphi-minimized-icon:hover {
-        transform: scale(1.1) rotate(-3deg) !important;
-        box-shadow: 0 6px 30px rgba(204, 255, 102, 0.5) !important;
+      
+      @keyframes amphi-glow {
+        0%, 100% { opacity: 0.5; transform: scale(1); }
+        50% { opacity: 0.8; transform: scale(1.1); }
+      }
+      
+      #amphi-minimized-icon:hover > div {
+        animation-play-state: paused !important;
+        transform: scale(1.1) !important;
       }
     `;
     document.head.appendChild(style);
+
+    sphere.appendChild(highlight);
+    minimizedIcon.appendChild(glow);
+    minimizedIcon.appendChild(sphere);
+    minimizedIcon.title = 'Click to share & earn!';
 
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
