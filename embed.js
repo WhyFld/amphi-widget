@@ -167,19 +167,38 @@ function createMinimizedIcon() {
       light.position.set(0, 0, 1);
       scene.add(light);
 
-      let rotation = 0;
-      let flipSpeed = 0.02;
+    let rotation = 0;
+      let speed = 0;
+      let phase = 'pausing'; // 'pausing', 'spinning'
+      let pauseTimer = 0;
+      let spinsCompleted = 0;
       
       function animate() {
         requestAnimationFrame(animate);
-        rotation += flipSpeed;
-        coin.rotation.y = rotation;
-        const normalizedRot = rotation % (Math.PI * 2);
-        if (normalizedRot < 0.1 || (normalizedRot > Math.PI - 0.1 && normalizedRot < Math.PI + 0.1)) {
-          flipSpeed = 0.01;
-        } else {
-          flipSpeed = 0.04;
+        
+        if (phase === 'pausing') {
+          // Pause on SHARE or EARN
+          speed *= 0.95; // Slow down smoothly
+          pauseTimer++;
+          
+          if (pauseTimer > 60) { // Pause for ~1 second (60 frames)
+            phase = 'spinning';
+            pauseTimer = 0;
+            spinsCompleted = 0;
+          }
+        } else if (phase === 'spinning') {
+          // Speed up and do multiple spins
+          speed = 0.08; // Fast spin
+          spinsCompleted += speed / (Math.PI * 2);
+          
+          // After 2.5 full rotations, prepare to pause on other side
+          if (spinsCompleted > 2.5) {
+            phase = 'pausing';
+          }
         }
+        
+        rotation += speed;
+        coin.rotation.y = rotation;
         renderer.render(scene, camera);
       }
       animate();
