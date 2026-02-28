@@ -99,7 +99,24 @@
       coin.add(body);
 
       // Create ridged edge with actual 3D grooves
-      const ridgeCount = 80;
+
+      const ridgeCount = 60;
+      for (let i = 0; i < ridgeCount; i++) {
+        const angle = (i / ridgeCount) * Math.PI * 2;
+        const ridgeGeometry = new THREE.BoxGeometry(0.02, 0.32, 0.08);
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ 
+          color: 0x000000
+        });
+        const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
+        
+        // Position ridge around the edge (accounting for cylinder being rotated)
+        const radius = 1.01;
+        ridge.position.x = Math.cos(angle) * radius;
+        ridge.position.z = Math.sin(angle) * radius;
+        ridge.rotation.y = angle;
+        
+        coin.add(ridge);
+      }
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
         const ridgeGeometry = new THREE.BoxGeometry(0.03, 0.3, 0.05);
