@@ -115,31 +115,6 @@
         
         coin.add(ridge);
       }
-      
-      // Black background
-      edgeCtx.fillStyle = '#000000';
-      edgeCtx.fillRect(0, 0, 512, 64);
-      
-      // Draw vertical lime green lines (ridges)
-      edgeCtx.strokeStyle = '#CCFF66';
-      edgeCtx.lineWidth = 2;
-      for (let i = 0; i < 512; i += 8) {
-        edgeCtx.beginPath();
-        edgeCtx.moveTo(i, 0);
-        edgeCtx.lineTo(i, 64);
-        edgeCtx.stroke();
-      }
-      
-      const edgeTexture = new THREE.CanvasTexture(edgeCanvas);
-      edgeTexture.wrapS = THREE.RepeatWrapping;
-      
-      const edgeGeometry = new THREE.CylinderGeometry(1.01, 1.01, 0.3, 64);
-      const edgeMaterial = new THREE.MeshBasicMaterial({ 
-        map: edgeTexture
-      });
-      const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
-      edge.rotation.x = Math.PI / 2;
-      coin.add(edge);
 
       // Create text textures with Unica77 font
       const createTextTexture = (text) => {
@@ -160,7 +135,7 @@
         return new THREE.CanvasTexture(canvas);
       };
 
-      // Front face (SHARE) - BIGGER to prevent edge showing through
+      // Front face (SHARE)
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
       const frontMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('SHARE')
@@ -169,7 +144,7 @@
       front.position.z = 0.151;
       coin.add(front);
 
-      // Back face (EARN) - BIGGER to prevent edge showing through
+      // Back face (EARN)
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
       const backMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('EARN')
