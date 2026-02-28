@@ -52,7 +52,6 @@
       return false; // Show icon on error (safer)
     }
   }
-
 // Create minimized icon (bottom-right corner)
   function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
@@ -61,15 +60,15 @@
       position: fixed;
       bottom: 20px;
       right: 20px;
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       cursor: pointer;
       z-index: 999999;
     `;
 
     const canvas = document.createElement('canvas');
     minimizedIcon.appendChild(canvas);
-    minimizedIcon.title = 'Click to earn!';
+    minimizedIcon.title = 'Share & Earn!';
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
 
@@ -77,73 +76,102 @@
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(75, 1, 0.1, 1000);
-      camera.position.z = 2;
+      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+      camera.position.z = 3;
 
       const renderer = new THREE.WebGLRenderer({ 
         canvas: canvas, 
         alpha: true,
         antialias: true
       });
-      renderer.setSize(80, 80);
+      renderer.setSize(90, 90);
 
-      // Create canvas texture with grid pattern
-      const textureCanvas = document.createElement('canvas');
-      textureCanvas.width = 512;
-      textureCanvas.height = 512;
-      const ctx = textureCanvas.getContext('2d');
-      
-      // Black background
-      ctx.fillStyle = '#000000';
-      ctx.fillRect(0, 0, 512, 512);
-      
-      // Draw lime green grid lines
-      ctx.strokeStyle = '#CCFF66';
-      ctx.lineWidth = 3;
-      
-      // Vertical lines
-      for (let i = 0; i <= 512; i += 64) {
-        ctx.beginPath();
-        ctx.moveTo(i, 0);
-        ctx.lineTo(i, 512);
-        ctx.stroke();
-      }
-      
-      // Horizontal lines
-      for (let i = 0; i <= 512; i += 64) {
-        ctx.beginPath();
-        ctx.moveTo(0, i);
-        ctx.lineTo(512, i);
-        ctx.stroke();
-      }
-      
-      const texture = new THREE.CanvasTexture(textureCanvas);
+      // Create coin group
+      const coin = new THREE.Group();
 
-      // Sphere with grid texture
-      const geometry = new THREE.SphereGeometry(0.8, 32, 32);
-      const material = new THREE.MeshStandardMaterial({
-        map: texture,
-        metalness: 0.5,
-        roughness: 0.3
+      // Main coin body (cylinder = thick disc)
+      const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
+      const bodyMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0xCCFF66 // Lime green
       });
-      
-      const sphere = new THREE.Mesh(geometry, material);
-      scene.add(sphere);
+      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+      body.rotation.x = Math.PI / 2; // Lay flat
+      coin.add(body);
 
-      // White light
-      const light = new THREE.DirectionalLight(0xffffff, 1.2);
-      light.position.set(1, 1, 1);
+      // Black edge with ridges
+      const edgeGeometry = new THREE.CylinderGeometry(1.02, 1.02, 0.3, 64);
+      const edgeMaterial = new THREE.MeshBasicMaterial({ 
+        color: 0x000000,
+        wireframe: true
+      });
+      const edge = new THREE.Mesh(edgeGeometry, edgeMaterial);
+      edge.rotation.x = Math.PI / 2;
+      coin.add(edge);
+
+      // Create text textures
+      const createTextTexture = (text) => {
+        const canvas = document.createElement('canvas');
+        canvas.width = 256;
+        canvas.height = 256;
+        const ctx = canvas.getContext('2d');
+        
+        ctx.fillStyle = '#CCFF66';
+        ctx.fillRect(0, 0, 256, 256);
+        
+        ctx.fillStyle = '#000000';
+        ctx.font = 'bold 60px Arial';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, 128, 128);
+        
+        return new THREE.CanvasTexture(canvas);
+      };
+
+      // Front face (SHARE)
+      const frontGeometry = new THREE.CircleGeometry(1, 64);
+      const frontMaterial = new THREE.MeshBasicMaterial({ 
+        map: createTextTexture('SHARE')
+      });
+      const front = new THREE.Mesh(frontGeometry, frontMaterial);
+      front.position.z = 0.151;
+      coin.add(front);
+
+      // Back face (EARN)
+      const backGeometry = new THREE.CircleGeometry(1, 64);
+      const backMaterial = new THREE.MeshBasicMaterial({ 
+        map: createTextTexture('EARN')
+      });
+      const back = new THREE.Mesh(backGeometry, backMaterial);
+      back.position.z = -0.151;
+      back.rotation.y = Math.PI; // Flip text so it reads correctly
+      coin.add(back);
+
+      scene.add(coin);
+
+      // Light
+      const light = new THREE.DirectionalLight(0xffffff, 1);
+      light.position.set(0, 0, 1);
       scene.add(light);
 
-      // Ambient light
-      const ambient = new THREE.AmbientLight(0x666666);
-      scene.add(ambient);
-
-      // Rotate slowly
+      // Animation with flip mechanic
+      let rotation = 0;
+      let flipSpeed = 0.02;
+      
       function animate() {
         requestAnimationFrame(animate);
-        sphere.rotation.y += 0.01;
-        sphere.rotation.x += 0.005;
+        
+        // Continuous Y-axis rotation with flip effect
+        rotation += flipSpeed;
+        coin.rotation.y = rotation;
+        
+        // When showing each side, slow down briefly
+        const normalizedRot = rotation % (Math.PI * 2);
+        if (normalizedRot < 0.1 || (normalizedRot > Math.PI - 0.1 && normalizedRot < Math.PI + 0.1)) {
+          flipSpeed = 0.01; // Slow down when showing SHARE or EARN
+        } else {
+          flipSpeed = 0.04; // Speed up during the flip
+        }
+        
         renderer.render(scene, camera);
       }
       animate();
