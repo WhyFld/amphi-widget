@@ -131,7 +131,7 @@ function createMinimizedIcon() {
       };
 
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
-      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE &') });
+      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE&') });
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
