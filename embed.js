@@ -75,6 +75,9 @@ function createMinimizedIcon() {
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
+      const dpr = window.devicePixelRatio || 1;
+      const SIZE = 90;
+
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
       camera.position.z = 3;
@@ -84,14 +87,13 @@ function createMinimizedIcon() {
         alpha: true,
         antialias: true
       });
-      renderer.setSize(90, 90);
+      renderer.setSize(SIZE, SIZE);
+      renderer.setPixelRatio(dpr);
 
       const coin = new THREE.Group();
 
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
-      const bodyMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0xCCFF66
-      });
+      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xCCFF66 });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
       body.rotation.x = Math.PI / 2;
       coin.add(body);
@@ -100,9 +102,7 @@ function createMinimizedIcon() {
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
         const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
-        const ridgeMaterial = new THREE.MeshBasicMaterial({ 
-          color: 0x000000
-        });
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
         const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
         ridge.position.x = Math.cos(angle) * 1.04;
         ridge.position.y = Math.sin(angle) * 1.04;
@@ -112,54 +112,52 @@ function createMinimizedIcon() {
       }
 
       const createTextTexture = (text) => {
-        const canvas = document.createElement('canvas');
-        canvas.width = 512;
-        canvas.height = 512;
-        const ctx = canvas.getContext('2d');
+        const texCanvas = document.createElement('canvas');
+        const texSize = 512 * dpr;
+        texCanvas.width = texSize;
+        texCanvas.height = texSize;
+        const ctx = texCanvas.getContext('2d');
         ctx.fillStyle = '#CCFF66';
-        ctx.fillRect(0, 0, 512, 512);
+        ctx.fillRect(0, 0, texSize, texSize);
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 100px Unica77, Arial, sans-serif';
+        ctx.font = `bold ${100 * dpr}px Arial Black, Arial, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text, 256, 256);
-        return new THREE.CanvasTexture(canvas);
+        ctx.fillText(text, texSize / 2, texSize / 2);
+        const texture = new THREE.CanvasTexture(texCanvas);
+        texture.minFilter = THREE.LinearFilter;
+        texture.magFilter = THREE.LinearFilter;
+        return texture;
       };
 
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
-      const frontMaterial = new THREE.MeshBasicMaterial({ 
-        map: createTextTexture('SHARE')
-      });
+      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE') });
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
 
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
-      const backMaterial = new THREE.MeshBasicMaterial({ 
-        map: createTextTexture('EARN')
-      });
+      const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN') });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
       coin.add(back);
 
       const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
-      
-      const frontEdgeMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0x000000,
-        side: THREE.DoubleSide
-      });
-      const frontEdge = new THREE.Mesh(edgeRingGeometry, frontEdgeMaterial);
+      const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
       frontEdge.position.z = 0.16;
       coin.add(frontEdge);
-      
-      const backEdgeMaterial = new THREE.MeshBasicMaterial({ 
-        color: 0x000000,
-        side: THREE.DoubleSide
-      });
-      const backEdge = new THREE.Mesh(edgeRingGeometry, backEdgeMaterial);
+
+      const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
       backEdge.position.z = -0.16;
       coin.add(backEdge);
+
+      // Bite mark — black sphere chewing the top-right corner
+      const biteGeometry = new THREE.SphereGeometry(0.38, 32, 32);
+      const biteMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+      const bite = new THREE.Mesh(biteGeometry, biteMaterial);
+      bite.position.set(0.75, 0.75, 0);
+      scene.add(bite); // added to scene not coin, so it stays fixed as coin rotates
 
       scene.add(coin);
 
@@ -167,9 +165,14 @@ function createMinimizedIcon() {
       light.position.set(0, 0, 1);
       scene.add(light);
 
+      let t = 0;
       function animate() {
         requestAnimationFrame(animate);
-        coin.rotation.y += 0.01;
+        t += 0.022;
+        // Faster base rotation with a sine wobble on Y and a gentle tilt on X
+        coin.rotation.y += 0.028;
+        coin.rotation.x = Math.sin(t * 0.7) * 0.18;
+        coin.rotation.z = Math.sin(t * 0.4) * 0.08;
         renderer.render(scene, camera);
       }
       animate();
