@@ -152,12 +152,7 @@ function createMinimizedIcon() {
       backEdge.position.z = -0.16;
       coin.add(backEdge);
 
-      // Bite mark — black sphere chewing the top-right corner
-      const biteGeometry = new THREE.SphereGeometry(0.38, 32, 32);
-      const biteMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
-      const bite = new THREE.Mesh(biteGeometry, biteMaterial);
-      bite.position.set(0.75, 0.75, 0);
-      scene.add(bite); // added to scene not coin, so it stays fixed as coin rotates
+
 
       scene.add(coin);
 
