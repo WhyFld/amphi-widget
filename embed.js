@@ -65,48 +65,42 @@ function createMinimizedIcon() {
       cursor: pointer;
       z-index: 999999;
     `;
+
     const canvas = document.createElement('canvas');
     minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Share & Earn!';
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
+
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
       const scene = new THREE.Scene();
       const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
       camera.position.z = 3;
-      const renderer = new THREE.WebGLRenderer({
-        canvas: canvas,
+
+      const renderer = new THREE.WebGLRenderer({ 
+        canvas: canvas, 
         alpha: true,
         antialias: true
       });
       renderer.setSize(90, 90);
-      renderer.setPixelRatio(window.devicePixelRatio); // Improves crispiness on high-DPI
+
       const coin = new THREE.Group();
-      
-      // Bite mark config: ~30° cut centered at top
-      const biteAngle = Math.PI / 6;
-      const thetaStart = Math.PI / 2 + biteAngle / 2;
-      const thetaLength = Math.PI * 2 - biteAngle;
-      
-      // Adjust ridge count to maintain density over partial arc
-      const fullRidgeCount = 40;
-      const ridgeCount = Math.round(fullRidgeCount * (thetaLength / (Math.PI * 2)));
-      
-      const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64, 1, false, thetaStart, thetaLength);
-      const bodyMaterial = new THREE.MeshLambertMaterial({
+
+      const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
+      const bodyMaterial = new THREE.MeshBasicMaterial({ 
         color: 0xCCFF66
       });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
       body.rotation.x = Math.PI / 2;
       coin.add(body);
-      
+
+      const ridgeCount = 40;
       for (let i = 0; i < ridgeCount; i++) {
-        const frac = i / (ridgeCount - 1);
-        const angle = thetaStart + frac * thetaLength;
+        const angle = (i / ridgeCount) * Math.PI * 2;
         const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
-        const ridgeMaterial = new THREE.MeshLambertMaterial({
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ 
           color: 0x000000
         });
         const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
@@ -116,46 +110,42 @@ function createMinimizedIcon() {
         ridge.rotation.z = angle;
         coin.add(ridge);
       }
-      
+
       const createTextTexture = (text) => {
         const canvas = document.createElement('canvas');
-        canvas.width = 1024;
-        canvas.height = 1024;
+        canvas.width = 512;
+        canvas.height = 512;
         const ctx = canvas.getContext('2d');
         ctx.fillStyle = '#CCFF66';
-        ctx.fillRect(0, 0, 1024, 1024);
+        ctx.fillRect(0, 0, 512, 512);
         ctx.fillStyle = '#000000';
-        ctx.font = 'bold 200px Unica77, Arial, sans-serif';
+        ctx.font = 'bold 100px Unica77, Arial, sans-serif';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText(text, 512, 512);
-        const texture = new THREE.CanvasTexture(canvas);
-        texture.generateMipmaps = false; // Reduces blurriness
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        return texture;
+        ctx.fillText(text, 256, 256);
+        return new THREE.CanvasTexture(canvas);
       };
-      
-      const frontGeometry = new THREE.CircleGeometry(1.05, 64, thetaStart, thetaLength);
-      const frontMaterial = new THREE.MeshLambertMaterial({
+
+      const frontGeometry = new THREE.CircleGeometry(1.05, 64);
+      const frontMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('SHARE')
       });
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
-      
-      const backGeometry = new THREE.CircleGeometry(1.05, 64, thetaStart, thetaLength);
-      const backMaterial = new THREE.MeshLambertMaterial({
+
+      const backGeometry = new THREE.CircleGeometry(1.05, 64);
+      const backMaterial = new THREE.MeshBasicMaterial({ 
         map: createTextTexture('EARN')
       });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
       coin.add(back);
+
+      const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
       
-      const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64, 1, thetaStart, thetaLength);
-      
-      const frontEdgeMaterial = new THREE.MeshLambertMaterial({
+      const frontEdgeMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x000000,
         side: THREE.DoubleSide
       });
@@ -163,23 +153,23 @@ function createMinimizedIcon() {
       frontEdge.position.z = 0.16;
       coin.add(frontEdge);
       
-      const backEdgeMaterial = new THREE.MeshLambertMaterial({
+      const backEdgeMaterial = new THREE.MeshBasicMaterial({ 
         color: 0x000000,
         side: THREE.DoubleSide
       });
       const backEdge = new THREE.Mesh(edgeRingGeometry, backEdgeMaterial);
       backEdge.position.z = -0.16;
       coin.add(backEdge);
-      
+
       scene.add(coin);
+
       const light = new THREE.DirectionalLight(0xffffff, 1);
       light.position.set(0, 0, 1);
       scene.add(light);
-      
+
       function animate() {
         requestAnimationFrame(animate);
-        const time = Date.now() * 0.001; // For quirky variation
-        coin.rotation.y += 0.02 + Math.sin(time * 5) * 0.005; // Faster + quirky wobble in speed
+        coin.rotation.y += 0.01;
         renderer.render(scene, camera);
       }
       animate();
