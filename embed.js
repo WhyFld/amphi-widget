@@ -147,7 +147,7 @@ const createTextTexture = (topText, bottomText) => {
   const cy = texSize / 2;
   const radius = texSize * 0.33;
   drawArcText(ctx, topText, cx, cy, radius, -Math.PI / 2, false);
-  drawArcText(ctx, bottomText, cx, cy, radius, Math.PI / 2, true);
+  drawArcText(ctx, bottomText.split('').reverse().join(''), cx, cy, radius, Math.PI / 2, true);
   const texture = new THREE.CanvasTexture(texCanvas);
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
