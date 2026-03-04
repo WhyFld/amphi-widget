@@ -115,7 +115,7 @@ function createMinimizedIcon() {
 
     const drawArcText = (ctx, text, cx, cy, radius, startAngle, isBottom) => {
   const chars = text.split('');
-  const fontSize = 62 * dpr;
+  const fontSize = 72 * dpr;
   ctx.font = `bold ${fontSize}px Unica77, Arial Black, Arial, sans-serif`;
   const totalWidth = chars.reduce((sum, c) => sum + ctx.measureText(c).width, 0);
   const totalAngle = totalWidth / radius;
