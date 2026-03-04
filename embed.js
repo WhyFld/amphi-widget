@@ -113,33 +113,55 @@ function createMinimizedIcon() {
         coin.add(ridge);
       }
 
-      const createTextTexture = (text) => {
-        const texCanvas = document.createElement('canvas');
-        const texSize = 512 * dpr;
-        texCanvas.width = texSize;
-        texCanvas.height = texSize;
-        const ctx = texCanvas.getContext('2d');
-        ctx.fillStyle = '#CCFF66';
-        ctx.fillRect(0, 0, texSize, texSize);
-        ctx.fillStyle = '#000000';
-        ctx.font = `bold ${68 * dpr}px Unica77, Arial Black, Arial, sans-serif`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText(text, texSize / 2, texSize / 2);
-        const texture = new THREE.CanvasTexture(texCanvas);
-        texture.minFilter = THREE.LinearFilter;
-        texture.magFilter = THREE.LinearFilter;
-        return texture;
-      };
+    const drawArcText = (ctx, text, cx, cy, radius, startAngle, isBottom) => {
+  const chars = text.split('');
+  const fontSize = 62 * dpr;
+  ctx.font = `bold ${fontSize}px Unica77, Arial Black, Arial, sans-serif`;
+  const totalWidth = chars.reduce((sum, c) => sum + ctx.measureText(c).width, 0);
+  const totalAngle = totalWidth / radius;
+  let angle = startAngle - totalAngle / 2;
+  chars.forEach(char => {
+    const charWidth = ctx.measureText(char).width;
+    angle += charWidth / 2 / radius;
+    ctx.save();
+    ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+    ctx.rotate(angle + (isBottom ? -Math.PI / 2 : Math.PI / 2));
+    ctx.fillText(char, 0, 0);
+    angle += charWidth / 2 / radius;
+    ctx.restore();
+  });
+};
 
+const createTextTexture = (topText, bottomText) => {
+  const texCanvas = document.createElement('canvas');
+  const texSize = 512 * dpr;
+  texCanvas.width = texSize;
+  texCanvas.height = texSize;
+  const ctx = texCanvas.getContext('2d');
+  ctx.fillStyle = '#CCFF66';
+  ctx.fillRect(0, 0, texSize, texSize);
+  ctx.fillStyle = '#000000';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const cx = texSize / 2;
+  const cy = texSize / 2;
+  const radius = texSize * 0.33;
+  drawArcText(ctx, topText, cx, cy, radius, -Math.PI / 2, false);
+  drawArcText(ctx, bottomText, cx, cy, radius, Math.PI / 2, true);
+  const texture = new THREE.CanvasTexture(texCanvas);
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  return texture;
+};
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
-      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE IDEAS') });
+      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE', 'IDEAS') });
+
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
 
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
-      const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN REWARDS') });
+const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN', 'REWARDS') });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
