@@ -76,6 +76,8 @@ function createMinimizedIcon() {
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.onload = () => {
       const dpr = window.devicePixelRatio || 1;
+      const font = new FontFace('Unica77', 'url(https://widget.getamphi.com/fonts/Unica77LLTT-Bold__1_.ttf)', { weight: '700' });
+      font.load().then(loadedFont => { document.fonts.add(loadedFont); });
       const SIZE = 90;
 
       const scene = new THREE.Scene();
@@ -120,7 +122,7 @@ function createMinimizedIcon() {
         ctx.fillStyle = '#CCFF66';
         ctx.fillRect(0, 0, texSize, texSize);
         ctx.fillStyle = '#000000';
-        ctx.font = `bold ${100 * dpr}px Arial Black, Arial, sans-serif`;
+        ctx.font = `bold ${68 * dpr}px Unica77, Arial Black, Arial, sans-serif`;
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
         ctx.fillText(text, texSize / 2, texSize / 2);
@@ -131,13 +133,13 @@ function createMinimizedIcon() {
       };
 
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
-      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE') });
+      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE IDEAS') });
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
 
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
-      const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN') });
+      const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN REWARDS') });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
