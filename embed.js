@@ -189,7 +189,7 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN'
         requestAnimationFrame(animate);
         t += 0.022;
         // Faster base rotation with a sine wobble on Y and a gentle tilt on X
-        coin.rotation.y += 0.020;
+        coin.rotation.y += 0.015;
         coin.rotation.x = Math.sin(t * 0.7) * 0.18;
         coin.rotation.z = Math.sin(t * 0.4) * 0.08;
         renderer.render(scene, camera);
