@@ -7,8 +7,9 @@
   ? 'http://localhost:3000/widget.html'
   : 'https://widget.getamphi.com/widget.html';
 
-  // Get brand ID from window (set by brand's embed code)
-  const BRAND_ID = window.AMPHI_BRAND_ID || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2';
+ const scriptTag = document.currentScript || Array.from(document.querySelectorAll('script')).find(s => s.src && s.src.includes('embed.js'));
+const urlParams = scriptTag ? new URL(scriptTag.src).searchParams : new URLSearchParams();
+const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2';
 
   let isMinimized = true;
   let widgetContainer = null;
