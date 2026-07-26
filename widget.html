@@ -640,15 +640,17 @@ async function submitPoll() {
   });
   
   try {
+    const _submissionId = crypto.randomUUID();
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
+        id: _submissionId,
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'poll',
@@ -660,8 +662,9 @@ async function submitPoll() {
     });
 
     if (response.ok) {
-  const data = await response.json();
-  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  // Row ID was generated client-side (no read-back needed — the anon key
+  // can no longer read submissions, which is the point of the lockdown).
+  formData.submissionId = _submissionId;
   console.log('✅ [Type] submitted successfully!');
   renderStep3();
 } else {
@@ -744,15 +747,17 @@ async function submitText() {
   });
   
   try {
+    const _submissionId = crypto.randomUUID();
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
+        id: _submissionId,
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'text_feedback',
@@ -764,8 +769,9 @@ async function submitText() {
     });
 
     if (response.ok) {
-  const data = await response.json();
-  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  // Row ID was generated client-side (no read-back needed — the anon key
+  // can no longer read submissions, which is the point of the lockdown).
+  formData.submissionId = _submissionId;
   console.log('✅ [Type] submitted successfully!');
   renderStep3();
 } else {
@@ -1021,15 +1027,17 @@ async function submitAudio() {
     console.log('✅ MP3 uploaded:', audioUrl);
     
     // Save submission to database
+    const _submissionId = crypto.randomUUID();
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
+        id: _submissionId,
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'audio_upload',
@@ -1040,8 +1048,9 @@ async function submitAudio() {
     });
 
     if (response.ok) {
-  const data = await response.json();
-  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  // Row ID was generated client-side (no read-back needed — the anon key
+  // can no longer read submissions, which is the point of the lockdown).
+  formData.submissionId = _submissionId;
   console.log('✅ [Type] submitted successfully!');
   renderStep3();
 } else {
@@ -1212,15 +1221,17 @@ async function submitVideo() {
     console.log('✅ Video uploaded:', videoUrl);
     
     // Save submission to database
+    const _submissionId = crypto.randomUUID();
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
+        id: _submissionId,
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'video_upload',
@@ -1231,8 +1242,9 @@ async function submitVideo() {
     });
 
     if (response.ok) {
-  const data = await response.json();
-  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  // Row ID was generated client-side (no read-back needed — the anon key
+  // can no longer read submissions, which is the point of the lockdown).
+  formData.submissionId = _submissionId;
   console.log('✅ [Type] submitted successfully!');
   renderStep3();
 } else {
@@ -1400,15 +1412,17 @@ async function submitImage() {
     console.log('✅ Image uploaded:', imageUrl);
     
     // Save submission to database
+    const _submissionId = crypto.randomUUID();
     const response = await fetch(`${SUPABASE_URL}/rest/v1/submissions`, {
       method: 'POST',
       headers: {
         'apikey': SUPABASE_KEY,
         'Authorization': `Bearer ${SUPABASE_KEY}`,
         'Content-Type': 'application/json',
-        'Prefer': 'return=representation'
+        'Prefer': 'return=minimal'
       },
       body: JSON.stringify({
+        id: _submissionId,
         task_id: campaign.id,
         brand_id: BRAND_ID,
         submission_type: 'image_upload',
@@ -1419,8 +1433,9 @@ async function submitImage() {
     });
 
     if (response.ok) {
-  const data = await response.json();
-  formData.submissionId = data[0].id;  // ← NEW: Remember the ID
+  // Row ID was generated client-side (no read-back needed — the anon key
+  // can no longer read submissions, which is the point of the lockdown).
+  formData.submissionId = _submissionId;
   console.log('✅ [Type] submitted successfully!');
   renderStep3();
 } else {
