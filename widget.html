@@ -1480,79 +1480,40 @@ async function handleFreeSubmission() {
   
   try {
     const campaign = campaigns[0];
-    
-    // Check for duplicate email
-    const duplicateCheck = await fetch(
-      SUPABASE_URL + '/rest/v1/submissions?task_id=eq.' + campaign.id + '&customer_email=eq.' + encodeURIComponent(email) + '&select=id,status',
-      {
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY
-        }
-      }
-    );
-    
-    const existingSubmissions = await duplicateCheck.json();
-    
-    if (existingSubmissions && existingSubmissions.length > 0) {
+
+    // Finalize the submission server-side: duplicate-check, attach the real
+    // email + approve, and auto-deactivate if the campaign hit its cap.
+    // This runs behind /api/finalize-submission (service-role key) so the
+    // submissions table can stay locked down to anonymous browsers.
+    const finalizeRes = await fetch('https://dashboard.getamphi.com/api/finalize-submission', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        submissionId: formData.submissionId,
+        campaignId: campaign.id,
+        email: email
+      })
+    });
+    const result = await finalizeRes.json();
+
+    if (result.duplicate) {
       console.log('Duplicate email detected:', email);
-      
-      // Delete orphaned submission
-      if (formData.submissionId) {
-        await fetch(SUPABASE_URL + '/rest/v1/submissions?id=eq.' + formData.submissionId, {
-          method: 'DELETE',
-          headers: {
-            'apikey': SUPABASE_KEY,
-            'Authorization': 'Bearer ' + SUPABASE_KEY
-          }
-        });
-      }
-      
+
       document.getElementById('content').innerHTML = '<div class="text-center"><div class="text-6xl mb-6">⚠️</div><h3 class="text-white text-2xl font-bold mb-4">You already completed this!</h3><p class="text-white/70 text-sm mb-6">' + email + ' has already submitted a response to this campaign.</p></div>';
-      
+
       setTimeout(function() {
         markCampaignCompleted(campaign.id);
         handleFinalClose();
       }, 3000);
-      
+
       return;
     }
-    
-    // Update submission with real email and auto-approve
-    await fetch(SUPABASE_URL + '/rest/v1/submissions?id=eq.' + formData.submissionId, {
-      method: 'PATCH',
-      headers: {
-        'apikey': SUPABASE_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_KEY,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ 
-        customer_email: email,
-        status: 'approved'
-      })
-    });
-    
-// CHECK IF LIMIT REACHED - AUTO-DEACTIVATE CAMPAIGN
-    const deactivateResponse = await fetch(
-      SUPABASE_URL + '/rest/v1/rpc/auto_deactivate_if_limit_reached',
-      {
-        method: 'POST',
-        headers: {
-          'apikey': SUPABASE_KEY,
-          'Authorization': 'Bearer ' + SUPABASE_KEY,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ campaign_uuid: campaign.id })
-      }
-    );
-    
-    const limitReached = await deactivateResponse.json();
-    
-    if (limitReached) {
+
+    if (result.limitReached) {
       console.log('🔴 Limit reached - campaign deactivated');
     }
-    
-    
+
+
     // Mark campaign completed for this user
     markCampaignCompleted(campaign.id);
   
