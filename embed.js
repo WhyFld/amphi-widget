@@ -162,7 +162,7 @@ const createTextTexture = (topText, bottomText) => {
       coin.add(front);
 
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
-const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN', 'REWARDS') });
+const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('BE', 'HEARD') });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
