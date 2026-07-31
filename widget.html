@@ -943,18 +943,25 @@ function showAudioPreview() {
 }
 
 function retakeAudio() {
-  // Reset UI
-  document.getElementById('timer').textContent = '0:00';
-  document.getElementById('timer').classList.add('hidden');
-  document.getElementById('audioPreview').classList.add('hidden');
+  // showAudioPreview() replaced the contents of #recordingArea (which destroyed
+  // the #timer and #audioPreview elements), so rebuild that area first — otherwise
+  // the old code referenced now-missing elements and threw before resetting anything.
+  document.getElementById('recordingArea').innerHTML = `
+        <div id="timer" class="text-white/70 text-2xl font-mono text-center mb-4 hidden">0:00</div>
+        <div id="audioPreview" class="hidden w-full"></div>
+  `;
+
+  // Reset the record button back to its initial state
+  const recordBtn = document.getElementById('recordBtn');
+  recordBtn.classList.remove('hidden', 'bg-red-500', 'hover:bg-red-600');
+  recordBtn.classList.add('bg-[#CCFF66]', 'hover:bg-[#b8e659]');
+  recordBtn.textContent = '🎤 Start Recording';
+  recordBtn.onclick = startAudioRecording;
+
+  // Hide the retake / submit actions
   document.getElementById('audioActions').classList.add('hidden');
-  
-  document.getElementById('recordBtn').classList.remove('hidden', 'bg-red-500', 'hover:bg-red-600');
-  document.getElementById('recordBtn').classList.add('bg-[#CCFF66]', 'hover:bg-[#b8e659]');
-  document.getElementById('recordBtn').textContent = '🎤 Start Recording';
-  document.getElementById('recordBtn').onclick = startAudioRecording;
-  
-  // Clear data
+
+  // Clear recorded data
   audioChunks = [];
   audioBlob = null;
   recordingSeconds = 0;
