@@ -96,7 +96,7 @@ function createMinimizedIcon() {
       const coin = new THREE.Group();
 
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
-      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xCCFF66 });
+      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
       body.rotation.x = Math.PI / 2;
       coin.add(body);
@@ -105,7 +105,7 @@ function createMinimizedIcon() {
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
         const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
-        const ridgeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
         const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
         ridge.position.x = Math.cos(angle) * 1.04;
         ridge.position.y = Math.sin(angle) * 1.04;
@@ -139,9 +139,9 @@ const createTextTexture = (topText, bottomText) => {
   texCanvas.width = texSize;
   texCanvas.height = texSize;
   const ctx = texCanvas.getContext('2d');
-  ctx.fillStyle = '#CCFF66';
-  ctx.fillRect(0, 0, texSize, texSize);
   ctx.fillStyle = '#000000';
+  ctx.fillRect(0, 0, texSize, texSize);
+  ctx.fillStyle = '#FFFFFF';
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const cx = texSize / 2;
@@ -169,11 +169,11 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('EARN'
       coin.add(back);
 
       const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
-      const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
+      const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide }));
       frontEdge.position.z = 0.16;
       coin.add(frontEdge);
 
-      const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
+      const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0xFFFFFF, side: THREE.DoubleSide }));
       backEdge.position.z = -0.16;
       coin.add(backEdge);
 
