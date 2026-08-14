@@ -398,6 +398,9 @@ async function loadCampaigns() {
       description: campaign.description,
       type: campaign.task_type,
       questions: campaign.required_fields || [],
+      reward_type: campaign.reward_type || null,
+      reward_code: campaign.reward_code || null,
+      reward_label: campaign.reward_label || null,
       icon: campaign.task_type === 'poll' ? '<svg width="64" height="64" viewBox="0 0 57 62" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_poll)"><path d="M54.5 55.7058H2.50006C1.11935 55.7058 6.10352e-05 56.8251 6.10352e-05 58.2058V59.5C6.10352e-05 60.8807 1.11935 62 2.50006 62H54.5C55.8807 62 57 60.8807 57 59.5V58.2058C57 56.8251 55.8807 55.7058 54.5 55.7058Z" fill="white"/><path d="M8.90812 52.8264H12.7006C14.082 52.8264 15.2016 51.7061 15.2006 50.3247L15.1872 30.4384C15.1863 29.0584 14.0673 27.9401 12.6872 27.9401H11.3913C10.0106 27.9401 8.89133 29.0594 8.89133 30.4401V42.5202C8.89133 43.9009 7.77205 45.0202 6.39134 45.0202H5.31721C3.9365 45.0202 2.81721 46.1395 2.81721 47.5202V50.3264C2.81721 51.7071 3.9365 52.8264 5.31721 52.8264H8.89133H8.90812Z" fill="white"/><path d="M28.6102 53.038H32.1843C33.565 53.038 34.6843 51.9187 34.6843 50.538V19.7887C34.6843 18.408 33.565 17.2887 32.1843 17.2887H30.8901C29.5094 17.2887 28.3901 18.408 28.3901 19.7887V37.6029C28.3901 38.9836 27.2708 40.1029 25.8901 40.1029H24.816C23.4352 40.1029 22.316 41.2222 22.316 42.6029V50.538C22.316 51.9187 23.4352 53.038 24.816 53.038H28.3901H28.6102Z" fill="white"/><path d="M48.1089 53.0379H51.683C53.0637 53.0379 54.183 51.9187 54.183 50.5379V2.77229C54.183 1.39157 53.0637 0.272286 51.683 0.272286H50.3888C49.0081 0.272286 47.8888 1.39157 47.8888 2.77229V30.7186C47.8888 32.0993 46.7695 33.2186 45.3888 33.2186H44.3147C42.934 33.2186 41.8147 34.3379 41.8147 35.7186V50.5379C41.8147 51.9187 42.934 53.0379 44.3147 53.0379H47.8888H48.1089Z" fill="white"/></g><defs><clipPath id="clip0_poll"><rect width="57" height="62" fill="white"/></clipPath></defs></svg>' :
       campaign.task_type === 'text_feedback' ? '<svg width="64" height="64" viewBox="0 0 70 60" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_text)"><path d="M63.5 0H6.5C2.91015 0 0 2.91015 0 6.5V41.5C0 45.0899 2.91015 48 6.5 48H15V57.5C15 58.3284 15.6716 59 16.5 59C16.8978 59 17.2794 58.842 17.5607 58.5607L30.1213 46H63.5C67.0899 46 70 43.0899 70 39.5V6.5C70 2.91015 67.0899 0 63.5 0ZM64 39.5C64 39.7761 63.7761 40 63.5 40H29C28.7348 40 28.4804 40.1054 28.2929 40.2929L21 47.5858V42C21 40.8954 20.1046 40 19 40H6.5C6.22386 40 6 39.7761 6 39.5V6.5C6 6.22386 6.22386 6 6.5 6H63.5C63.7761 6 64 6.22386 64 6.5V39.5Z" fill="white"/><rect x="14" y="15" width="42" height="4" rx="2" fill="white"/><rect x="14" y="25" width="32" height="4" rx="2" fill="white"/></g><defs><clipPath id="clip0_text"><rect width="70" height="60" fill="white"/></clipPath></defs></svg>' :
       campaign.task_type === 'video_upload' ? '<svg width="64" height="64" viewBox="0 0 80 62" fill="none" xmlns="http://www.w3.org/2000/svg"><g clip-path="url(#clip0_video)"><path d="M79.9927 23.4221H77.6922C76.3974 23.4221 75.3477 22.3724 75.3477 21.0776C75.3477 19.7829 74.2981 18.7332 73.0033 18.7332H71.9534C70.6586 18.7332 69.609 19.7957 69.609 21.0905C69.609 22.3712 68.5708 23.4221 67.2901 23.4221C66.0095 23.4221 64.9713 24.4602 64.9713 25.7409V26.3353C64.9713 27.3159 64.1763 28.1109 63.1957 28.1109C62.2151 28.1109 61.4201 27.3159 61.4201 26.3353V21.0631C61.4201 19.7804 60.3803 18.7406 59.0976 18.7406C57.815 18.7406 56.7751 17.6807 56.7751 16.398C56.7751 15.1174 55.737 14.0591 54.4563 14.0591C53.1756 14.0591 52.1375 13.0209 52.1375 11.7403V7.00395C52.1375 5.72128 51.0976 4.68147 49.815 4.68147C48.5323 4.68147 47.4925 3.63257 47.4925 2.34989C47.4925 1.05714 46.4445 0 45.1517 0H25.703C24.3223 0 23.203 1.11929 23.203 2.5V3.28559C23.203 4.6663 24.3223 5.78559 25.703 5.78559H43.906C45.2867 5.78559 46.406 6.90488 46.406 8.28559V11.5518C46.406 12.9325 45.2867 14.0518 43.906 14.0518H6.97841C5.68566 14.0518 4.63768 15.1107 4.63768 16.4035C4.63768 17.6842 3.5995 18.7332 2.31884 18.7332C1.03818 18.7332 0 19.7714 0 21.0521V54.9997C0 56.2804 1.03818 57.3185 2.31884 57.3185C3.5995 57.3185 4.63768 58.3676 4.63768 59.6483C4.63768 60.941 5.68566 62 6.97842 62H54.4417C55.7345 62 56.7824 60.9429 56.7824 59.6501C56.7824 58.3674 57.8222 57.3185 59.1049 57.3185C60.3876 57.3185 61.4274 56.2787 61.4274 54.996V49.7238C61.4274 48.7432 62.2224 47.9482 63.203 47.9482C64.1836 47.9482 64.9786 48.7432 64.9786 49.7238V50.3182C64.9786 51.5989 66.0168 52.6371 67.2974 52.6371C68.5781 52.6371 69.6163 53.688 69.6163 54.9686C69.6163 56.2634 70.6659 57.3259 71.9607 57.3259H73.0106C74.3054 57.3259 75.355 56.2652 75.355 54.9705C75.355 53.6878 76.3948 52.6371 77.6775 52.6371C78.9602 52.6371 80 51.5973 80 50.3146V23.4294C80 23.4253 79.9967 23.4221 79.9927 23.4221ZM68.3912 46.8515C67.1106 46.8515 66.0724 45.7932 66.0724 44.5126C66.0724 43.2299 65.0326 42.17 63.7499 42.17C62.4672 42.17 61.4274 41.1302 61.4274 39.8475V36.2263C61.4274 34.9436 62.4672 33.9038 63.7499 33.9038C65.0326 33.9038 66.0724 32.8439 66.0724 31.5613C66.0724 30.2806 67.1106 29.2224 68.3912 29.2224C69.6719 29.2224 70.7101 28.1842 70.7101 26.9035V26.3091C70.7101 25.3285 71.505 24.5335 72.4856 24.5335C73.4663 24.5335 74.2612 25.3285 74.2612 26.3091V49.7647C74.2612 50.7453 73.4663 51.5403 72.4856 51.5403C71.505 51.5403 70.7101 50.7453 70.7101 49.7647V49.1703C70.7101 47.8897 69.6719 46.8515 68.3912 46.8515ZM55.6886 19.8447C55.6927 19.8447 55.6959 19.848 55.6959 19.852V53.7218C55.6959 55.1025 54.5766 56.2218 53.1959 56.2218H8.23147C6.85076 56.2218 5.73147 55.1025 5.73147 53.7218V22.3447C5.73147 20.964 6.85076 19.8447 8.23147 19.8447H55.6886Z" fill="white"/></g><defs><clipPath id="clip0_video"><rect width="80" height="62" fill="white"/></clipPath></defs></svg>' :
@@ -513,8 +516,9 @@ function renderStep1() {
       </div>
     </div>
 
- <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
-     Start →
+ <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all">
+     <span class="text-lg">Start →</span>
+     ${campaign.reward_label ? `<span class="block text-xs font-semibold text-black/70 mt-0.5">Get ${campaign.reward_label}</span>` : ''}
    </button>
   `;
 }
@@ -1505,19 +1509,29 @@ async function handleFreeSubmission() {
     // Mark campaign completed for this user
     markCampaignCompleted(campaign.id);
   
-    // Show success
+    // Show success — Done-to-close for every campaign; reveal the reward if any.
+    const _hasReward = campaign.reward_code && campaign.reward_label;
     document.getElementById('content').innerHTML = `
-      <div class="flex items-center justify-center h-full">
-        <div class="text-center">
-          <h2 class="text-white text-3xl font-bold">All done!</h2>
-        </div>
+      <div class="flex flex-col items-center justify-center min-h-[380px] text-center px-2">
+        <h2 class="text-white text-3xl font-bold mb-2">All done!</h2>
+        ${_hasReward ? `
+          <p class="text-white/70 text-sm mb-6">Here's your reward — ${campaign.reward_label}</p>
+          <div class="w-full bg-white/10 border border-white/15 rounded-xl p-4 mb-6">
+            <div class="text-white/50 text-xs mb-2">Your code</div>
+            <div class="flex items-center justify-between gap-3">
+              <span id="rewardCode" class="text-white text-2xl font-bold tracking-wide">${campaign.reward_code}</span>
+              <button onclick="copyRewardCode()" id="copyBtn" class="shrink-0 px-4 py-2 bg-[#CCFF66] hover:bg-[#b8e659] text-black text-sm font-bold rounded-lg transition">Copy</button>
+            </div>
+          </div>
+        ` : `
+          <p class="text-white/60 text-sm mb-6">Thanks for sharing your response.</p>
+        `}
+        <button onclick="handleFinalClose()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+          Done
+        </button>
       </div>
     `;
-    
-    setTimeout(function() {
-      handleFinalClose();
-    }, 3000);
-    
+
   } catch (error) {
     console.error('Error:', error);
     errorMsg.textContent = 'Something went wrong. Please try again.';
@@ -1528,6 +1542,15 @@ async function handleFreeSubmission() {
 }
 
   
+function copyRewardCode() {
+  const el = document.getElementById('rewardCode');
+  if (!el) return;
+  navigator.clipboard.writeText(el.textContent).then(function () {
+    const btn = document.getElementById('copyBtn');
+    if (btn) { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 2000); }
+  }).catch(function () {});
+}
+
 function minimizeWidget() {
   // Send message to parent to minimize
   window.parent.postMessage({ action: 'minimize' }, '*');
