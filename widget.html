@@ -368,8 +368,10 @@ let campaigns = [];
 // ============================================
 async function loadCampaigns() {
   try {
+    // Exclude campaigns whose end date has passed (read-time check, no cron).
+    const _now = new Date().toISOString();
     const response = await fetch(
-      `${SUPABASE_URL}/rest/v1/tasks?brand_id=eq.${BRAND_ID}&is_active=eq.true&select=*`,
+      `${SUPABASE_URL}/rest/v1/tasks?brand_id=eq.${BRAND_ID}&is_active=eq.true&or=(ends_at.is.null,ends_at.gt.${_now})&select=*`,
       {
         headers: {
           'apikey': SUPABASE_KEY,
