@@ -1546,10 +1546,34 @@ async function handleFreeSubmission() {
 function copyRewardCode() {
   const el = document.getElementById('rewardCode');
   if (!el) return;
-  navigator.clipboard.writeText(el.textContent).then(function () {
+  const code = el.textContent;
+  const done = function () {
     const btn = document.getElementById('copyBtn');
     if (btn) { btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = 'Copy'; }, 2000); }
-  }).catch(function () {});
+  };
+  // Modern API needs the clipboard-write permission, which a cross-origin iframe
+  // may not have — so fall back to execCommand, which works on a user gesture.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(code).then(done).catch(function () { fallbackCopy(code, done); });
+  } else {
+    fallbackCopy(code, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.setAttribute('readonly', '');
+    ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+    document.body.appendChild(ta);
+    ta.focus();
+    ta.select();
+    ta.setSelectionRange(0, text.length);
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (done) done();
+  } catch (e) { /* clipboard unavailable — leave the code visible to copy manually */ }
 }
 
 function minimizeWidget() {
