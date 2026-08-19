@@ -1135,10 +1135,11 @@ function showVideoPlayback() {
   playback.src = videoURL;
   playback.classList.remove('hidden');
   
-  // Update timer to show final duration
-  document.getElementById('videoTimer').textContent = 
-    `${Math.floor(videoSeconds / 60)}:${(videoSeconds % 60).toString().padStart(2, '0')}`;
-  
+  // Hide the recording timer: the playback player shows its own duration, so a
+  // second big timer below it is redundant clutter. (Also frees vertical space,
+  // keeping Retake/Submit above the fold on smaller/mobile screens.)
+  document.getElementById('videoTimer').classList.add('hidden');
+
   // Hide record button, show actions
   document.getElementById('videoRecordBtn').classList.add('hidden');
   document.getElementById('videoActions').classList.remove('hidden');
