@@ -903,10 +903,27 @@ function stopAudioRecording() {
 let audioPlayer = null;      // detached Audio() element driving playback
 let waveformPeaks = [];      // normalised bar heights (0..1) sampled from the clip
 let waveDuration = 0;        // seconds, taken from the decoded buffer (reliable)
+let waveRAF = null;          // requestAnimationFrame handle for the play-time redraw loop
+
+// Redraw at 60fps WHILE playing so the lime fill glides. Relying on the audio
+// element's `timeupdate` event (only ~4/sec) makes the fill jump in visible
+// steps, which reads as lag.
+function startWaveLoop() {
+  stopWaveLoop();
+  const step = () => {
+    drawWaveform();
+    if (audioPlayer && !audioPlayer.paused) waveRAF = requestAnimationFrame(step);
+  };
+  waveRAF = requestAnimationFrame(step);
+}
+function stopWaveLoop() {
+  if (waveRAF) { cancelAnimationFrame(waveRAF); waveRAF = null; }
+}
 
 function stopWavePlayback() {
   // The player is detached from the DOM, so replacing #recordingArea's HTML does
   // NOT stop it — we must pause it explicitly on retake / submit.
+  stopWaveLoop();
   if (audioPlayer) {
     audioPlayer.pause();
     audioPlayer.src = '';
@@ -937,9 +954,8 @@ function showAudioPreview() {
 
   // Detached element drives playback; the canvas is our custom UI.
   audioPlayer = new Audio(audioURL);
-  audioPlayer.addEventListener('timeupdate', drawWaveform);
-  audioPlayer.addEventListener('play', () => setWaveIcon(true));
-  audioPlayer.addEventListener('pause', () => setWaveIcon(false));
+  audioPlayer.addEventListener('play', () => { setWaveIcon(true); startWaveLoop(); });
+  audioPlayer.addEventListener('pause', () => { setWaveIcon(false); stopWaveLoop(); drawWaveform(); });
   audioPlayer.addEventListener('ended', onWaveEnded);
 
   buildWaveform();
@@ -1038,6 +1054,7 @@ function seekWave(event) {
 }
 
 function onWaveEnded() {
+  stopWaveLoop();
   if (audioPlayer) audioPlayer.currentTime = 0;
   setWaveIcon(false);
   drawWaveform();
