@@ -3,9 +3,11 @@
   'use strict';
 
   // Configuration
-  const WIDGET_URL = window.location.hostname === 'localhost' 
+  // window.AMPHI_WIDGET_URL lets a host page (e.g. the staging demo) point the
+  // coin at a different widget.html; defaults to production.
+  const WIDGET_URL = window.AMPHI_WIDGET_URL || (window.location.hostname === 'localhost'
   ? 'http://localhost:3000/widget.html'
-  : 'https://widget.getamphi.com/widget.html';
+  : 'https://widget.getamphi.com/widget.html');
 
  const scriptTag = document.currentScript || Array.from(document.querySelectorAll('script')).find(s => s.src && s.src.includes('embed.js'));
 const urlParams = scriptTag ? new URL(scriptTag.src).searchParams : new URLSearchParams();
@@ -319,12 +321,17 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('BE', 
       return;
     }
 
-    // Check if campaign is completed
-    const isCompleted = await checkCampaignCompletion();
-    
-    if (isCompleted) {
-      console.log('ℹ️ AMPHI: Campaign already completed, not showing widget');
-      return; // Don't create anything
+    // window.AMPHI_FORCE_SHOW (used by the staging coin sandbox) renders the coin
+    // regardless of campaign/completion state, so the coin can be designed in
+    // isolation. Off by default → production behaviour is unchanged.
+    if (!window.AMPHI_FORCE_SHOW) {
+      // Check if campaign is completed
+      const isCompleted = await checkCampaignCompletion();
+
+      if (isCompleted) {
+        console.log('ℹ️ AMPHI: Campaign already completed, not showing widget');
+        return; // Don't create anything
+      }
     }
 
     // Campaign not completed - show widget
