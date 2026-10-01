@@ -29,7 +29,7 @@ const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71
     ribena:  { face: '#5B2A86', ink: '#FFFFFF' },
     greece:  { face: '#2743C6', ink: '#FFFFFF' },
     dollar:  { face: '#3EA15C', ink: '#FFFFFF' },
-    rose:    { face: '#F4C7C3', ink: '#3A1F23' }
+    donut:   { face: '#F4C7C3', ink: '#3A1F23' }
   };
   const DEFAULT_COPY = { ft: 'SHARE', fb: 'IDEAS', bt: 'BE', bb: 'HEARD' };
   let coinConfig = null; // { theme, copy } once fetched
