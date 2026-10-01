@@ -18,6 +18,40 @@ const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71
   let minimizedIcon = null;
   let shouldAutoOpen = false;
 
+  // ---- Coin personalisation (brand-level). Defaults = the classic coin. ----
+  const COIN_THEMES = {
+    tuxedo:  { face: '#FFFFFF', ink: '#000000' },
+    darth:   { face: '#0A0A0A', ink: '#FFFFFF' },
+    lime:    { face: '#CCFF66', ink: '#000000' },
+    latte:   { face: '#F3ECDD', ink: '#2A2622' },
+    cheddar: { face: '#F0A23C', ink: '#241A10' },
+    spritz:  { face: '#FF5A3C', ink: '#FFFFFF' },
+    ribena:  { face: '#5B2A86', ink: '#FFFFFF' },
+    greece:  { face: '#2743C6', ink: '#FFFFFF' },
+    dollar:  { face: '#3EA15C', ink: '#FFFFFF' }
+  };
+  const DEFAULT_COPY = { ft: 'SHARE', fb: 'IDEAS', bt: 'BE', bb: 'HEARD' };
+  let coinConfig = null; // { theme, copy } once fetched
+
+  const AMPHI_SB_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
+  const AMPHI_SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
+
+  function cleanWord(w) {
+    return (w == null ? '' : String(w)).toUpperCase().slice(0, 8);
+  }
+
+  async function fetchCoinConfig() {
+    try {
+      const r = await fetch(
+        `${AMPHI_SB_URL}/rest/v1/brand_coin_config?id=eq.${BRAND_ID}&select=coin_theme,coin_copy`,
+        { headers: { 'apikey': AMPHI_SB_KEY, 'Authorization': `Bearer ${AMPHI_SB_KEY}` } }
+      );
+      const rows = await r.json();
+      if (rows && rows[0]) return { theme: rows[0].coin_theme, copy: rows[0].coin_copy };
+    } catch (e) { /* fall back to defaults */ }
+    return null;
+  }
+
   // Check if current campaign is completed
   async function checkCampaignCompletion() {
     try {
@@ -67,6 +101,7 @@ function createMinimizedIcon() {
       height: 90px;
       cursor: pointer;
       z-index: 999999;
+      filter: drop-shadow(0 3px 9px rgba(0, 0, 0, 0.32));
     `;
 
     const canvas = document.createElement('canvas');
@@ -97,8 +132,14 @@ function createMinimizedIcon() {
 
       const coin = new THREE.Group();
 
+      // Resolve the brand's coin theme + copy (falls back to the classic look).
+      const coinTheme = COIN_THEMES[coinConfig && coinConfig.theme] || COIN_THEMES.tuxedo;
+      const faceCol = coinTheme.face, inkCol = coinTheme.ink;
+      const cc = (coinConfig && coinConfig.copy) || DEFAULT_COPY;
+      const FT = cleanWord(cc.ft), FB = cleanWord(cc.fb), BT = cleanWord(cc.bt), BB = cleanWord(cc.bb);
+
       const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
-      const bodyMaterial = new THREE.MeshBasicMaterial({ color: 0xFFFFFF });
+      const bodyMaterial = new THREE.MeshBasicMaterial({ color: faceCol });
       const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
       body.rotation.x = Math.PI / 2;
       coin.add(body);
@@ -107,7 +148,7 @@ function createMinimizedIcon() {
       for (let i = 0; i < ridgeCount; i++) {
         const angle = (i / ridgeCount) * Math.PI * 2;
         const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
-        const ridgeMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const ridgeMaterial = new THREE.MeshBasicMaterial({ color: inkCol });
         const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
         ridge.position.x = Math.cos(angle) * 1.04;
         ridge.position.y = Math.sin(angle) * 1.04;
@@ -135,15 +176,15 @@ function createMinimizedIcon() {
   });
 };
 
-const createTextTexture = (topText, bottomText) => {
+const createTextTexture = (topText, bottomText, faceCol, inkCol) => {
   const texCanvas = document.createElement('canvas');
   const texSize = 512 * dpr;
   texCanvas.width = texSize;
   texCanvas.height = texSize;
   const ctx = texCanvas.getContext('2d');
-  ctx.fillStyle = '#FFFFFF';
+  ctx.fillStyle = faceCol;
   ctx.fillRect(0, 0, texSize, texSize);
-  ctx.fillStyle = '#000000';
+  ctx.fillStyle = inkCol;
   ctx.textAlign = 'center';
   ctx.textBaseline = 'middle';
   const cx = texSize / 2;
@@ -157,25 +198,25 @@ const createTextTexture = (topText, bottomText) => {
   return texture;
 };
       const frontGeometry = new THREE.CircleGeometry(1.05, 64);
-      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('SHARE', 'IDEAS') });
+      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(FT, FB, faceCol, inkCol) });
 
       const front = new THREE.Mesh(frontGeometry, frontMaterial);
       front.position.z = 0.151;
       coin.add(front);
 
       const backGeometry = new THREE.CircleGeometry(1.05, 64);
-const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('BE', 'HEARD') });
+const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB, faceCol, inkCol) });
       const back = new THREE.Mesh(backGeometry, backMaterial);
       back.position.z = -0.151;
       back.rotation.y = Math.PI;
       coin.add(back);
 
       const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
-      const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
+      const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: inkCol, side: THREE.DoubleSide }));
       frontEdge.position.z = 0.16;
       coin.add(frontEdge);
 
-      const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: 0x000000, side: THREE.DoubleSide }));
+      const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: inkCol, side: THREE.DoubleSide }));
       backEdge.position.z = -0.16;
       coin.add(backEdge);
 
@@ -336,6 +377,7 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture('BE', 
 
     // Campaign not completed - show widget
     shouldAutoOpen = true;
+    coinConfig = await fetchCoinConfig();
     createMinimizedIcon();
     createWidgetContainer();
     autoOpen();
