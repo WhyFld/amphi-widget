@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>amphi coin — sandbox</title>
+<style>
+  body { margin: 0; min-height: 100vh; background: #f4f4f4; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; color: #333; }
+  .note { max-width: 600px; margin: 0 auto; padding: 56px 24px; }
+  h1 { font-size: 20px; margin: 0 0 10px; }
+  p { font-size: 14px; line-height: 1.55; color: #666; }
+  code { background: #e6e6e6; padding: 2px 6px; border-radius: 4px; font-size: 13px; }
+</style>
+</head>
+<body>
+  <div class="note">
+    <h1>amphi coin — sandbox</h1>
+    <p>A blank storefront for testing the <strong>coin</strong> (the floating widget icon) in isolation. The coin in the corner is rendered by the <strong>staging</strong> <code>embed.js</code>, so any coin change you make on the <code>staging</code> branch shows up here before it ever touches production.</p>
+    <p>The coin is forced to always show here (no active campaign needed). Clicking it opens the staging widget.</p>
+  </div>
+
+  <!-- Point the coin at the staging widget.html (same deployment) and force it to render -->
+  <script>
+    window.AMPHI_WIDGET_URL = '/widget.html';
+    window.AMPHI_FORCE_SHOW = true;
+  </script>
+  <script src="/embed.js?brand_id=1dddb789-1240-4c62-91b7-2f38a7c64b64"></script>
+</body>
+</html>
