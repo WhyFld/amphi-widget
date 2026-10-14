@@ -44,11 +44,11 @@ const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71
   async function fetchCoinConfig() {
     try {
       const r = await fetch(
-        `${AMPHI_SB_URL}/rest/v1/brand_coin_config?id=eq.${BRAND_ID}&select=coin_theme,coin_copy`,
+        `${AMPHI_SB_URL}/rest/v1/brand_coin_config?id=eq.${BRAND_ID}&select=coin_theme,coin_copy,coin_position`,
         { headers: { 'apikey': AMPHI_SB_KEY, 'Authorization': `Bearer ${AMPHI_SB_KEY}` } }
       );
       const rows = await r.json();
-      if (rows && rows[0]) return { theme: rows[0].coin_theme, copy: rows[0].coin_copy };
+      if (rows && rows[0]) return { theme: rows[0].coin_theme, copy: rows[0].coin_copy, position: rows[0].coin_position };
     } catch (e) { /* fall back to defaults */ }
     return null;
   }
@@ -94,10 +94,16 @@ const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71
 function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
+
+    // Launcher position (brand-level): br (default), bm (bottom-middle), bl (bottom-left).
+    const pos = (coinConfig && coinConfig.position) || 'br';
+    const posCss = pos === 'bm' ? 'bottom: 20px; left: 50%; transform: translateX(-50%);'
+                 : pos === 'bl' ? 'bottom: 20px; left: 20px;'
+                 : 'bottom: 20px; right: 20px;';
+
     minimizedIcon.style.cssText = `
       position: fixed;
-      bottom: 20px;
-      right: 20px;
+      ${posCss}
       width: 90px;
       height: 90px;
       cursor: pointer;
