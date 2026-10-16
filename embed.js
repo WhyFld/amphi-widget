@@ -267,8 +267,10 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
     
     const iframe = document.createElement('iframe');
     iframe.id = 'amphi-widget-iframe';
-    // Pass brand ID to widget via URL parameter
-    iframe.src = WIDGET_URL + '?brand=' + BRAND_ID;
+    // Pass brand ID + coin theme to the widget via URL parameters, so the
+    // pop-up's CTA/accents match the coin the shopper just tapped.
+    var coinTheme = coinConfig && coinConfig.theme;
+    iframe.src = WIDGET_URL + '?brand=' + BRAND_ID + (coinTheme ? '&theme=' + encodeURIComponent(coinTheme) : '');
     iframe.allow = 'camera *; microphone *; display-capture *; clipboard-write *';
     iframe.style.cssText = `
       width: 100%;

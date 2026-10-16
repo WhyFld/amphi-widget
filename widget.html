@@ -14,6 +14,22 @@
       background: transparent;
     }
 
+    /* ---- Coin-colour theming ----
+       Vars are set from JS (?theme=) on load; these defaults are the "no theme"
+       state = black button / white text / white accents (a white button would
+       vanish on the glass). Coloured themes override them with the coin colour. */
+    :root {
+      --amphi-cta-bg: #0A0A0A; --amphi-cta-ink: #FFFFFF; --amphi-cta-hover: #242424; --amphi-cta-border: rgba(255,255,255,0.22);
+      --amphi-accent: #FFFFFF; --amphi-accent-ico: #0A0A0A; --amphi-accent-hover: #E6E6E6; --amphi-accent-rgb: 255,255,255;
+      --amphi-face: #FFFFFF; --amphi-ink: #000000;
+    }
+    .amphi-cta { background: var(--amphi-cta-bg) !important; color: var(--amphi-cta-ink) !important; border: 1px solid var(--amphi-cta-border) !important; }
+    .amphi-cta:hover { background: var(--amphi-cta-hover) !important; }
+    .amphi-accent { background: var(--amphi-accent) !important; color: var(--amphi-accent-ico) !important; }
+    .amphi-accent:hover { background: var(--amphi-accent-hover) !important; }
+    .amphi-progress { background: var(--amphi-accent) !important; }
+    .amphi-face { background: var(--amphi-face) !important; color: var(--amphi-ink) !important; }
+
     .glass-popup {
       background: rgba(0, 0, 0, 0.40);
       backdrop-filter: blur(40px) saturate(180%);
@@ -86,10 +102,10 @@
     }
     
     .carousel-dot.active {
-      background: #CCFF66;
+      background: var(--amphi-accent);
       width: 24px;
       border-radius: 4px;
-      box-shadow: 0 2px 12px rgba(204, 255, 102, 0.5);
+      box-shadow: 0 2px 12px rgba(var(--amphi-accent-rgb), 0.5);
     }
 
     .arrow-btn {
@@ -131,11 +147,11 @@
     }
     .poll-option:hover {
       background: rgba(255, 255, 255, 0.15);
-      border-color: rgba(204, 255, 102, 0.5);
+      border-color: rgba(var(--amphi-accent-rgb), 0.5);
     }
     .poll-option.selected {
-      background: rgba(204, 255, 102, 0.2);
-      border-color: #CCFF66;
+      background: rgba(var(--amphi-accent-rgb), 0.2);
+      border-color: var(--amphi-accent);
     }
 
     textarea, input[type="text"], input[type="email"] {
@@ -145,7 +161,7 @@
       outline: none;
     }
     textarea:focus, input:focus {
-      border-color: #CCFF66;
+      border-color: var(--amphi-accent);
       background: rgba(255, 255, 255, 0.15);
     }
     textarea::placeholder, input::placeholder {
@@ -169,7 +185,7 @@
 /* Smooth scrolling */
 #content {
   scrollbar-width: thin;
-  scrollbar-color: rgba(204, 255, 102, 0.3) transparent;
+  scrollbar-color: rgba(var(--amphi-accent-rgb), 0.3) transparent;
 }
 
 #content::-webkit-scrollbar {
@@ -181,12 +197,12 @@
 }
 
 #content::-webkit-scrollbar-thumb {
-  background: rgba(204, 255, 102, 0.3);
+  background: rgba(var(--amphi-accent-rgb), 0.3);
   border-radius: 3px;
 }
 
 #content::-webkit-scrollbar-thumb:hover {
-  background: rgba(204, 255, 102, 0.5);
+  background: rgba(var(--amphi-accent-rgb), 0.5);
 }
 
 /* Mobile adjustments */
@@ -283,11 +299,11 @@
 <div id="minimizedIcon" class="hidden fixed bottom-6 right-6 z-50 cursor-pointer group" onclick="restoreWidget()">
   <div class="relative">
     <!-- Icon Circle -->
-    <div class="w-16 h-16 rounded-full bg-[#CCFF66] flex items-center justify-center shadow-2xl transform transition-all duration-300 group-hover:scale-110">
-      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <div class="w-16 h-16 rounded-full amphi-face flex items-center justify-center shadow-2xl transform transition-all duration-300 group-hover:scale-110">
+      <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
     </div>
     <!-- Pulse Animation -->
-    <div class="absolute inset-0 rounded-full bg-[#CCFF66] opacity-20 animate-ping"></div>
+    <div class="absolute inset-0 rounded-full amphi-face opacity-20 animate-ping"></div>
   </div>
 </div>
   
@@ -300,6 +316,55 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 // NEW: Read brand ID from URL parameter
 const urlParams = new URLSearchParams(window.location.search);
 const BRAND_ID = urlParams.get('brand') || '3c4b9a71-3aa4-4a9d-b17c-5bedf24b50c2'; // Fallback
+
+// ---- Coin-colour theming ----------------------------------------------------
+// The coin the shopper tapped sets the colour of the primary CTA and the
+// accents inside the pop-up (play button, progress fill, selected-poll ring),
+// so the experience feels consistent with the launcher. Themes are the same
+// face/ink pairs as the coin; tuxedo + darth (+ the un-personalised default)
+// use a black button with white text, since a white button vanishes on the
+// dark glass. Driven entirely by CSS variables set here.
+const WIDGET_THEMES = {
+  tuxedo:  { face: '#FFFFFF', ink: '#000000' },
+  darth:   { face: '#0A0A0A', ink: '#FFFFFF' },
+  lime:    { face: '#CCFF66', ink: '#000000' },
+  latte:   { face: '#F3ECDD', ink: '#2A2622' },
+  cheddar: { face: '#F0A23C', ink: '#241A10' },
+  spritz:  { face: '#FF5A3C', ink: '#FFFFFF' },
+  ribena:  { face: '#5B2A86', ink: '#FFFFFF' },
+  greece:  { face: '#2743C6', ink: '#FFFFFF' },
+  dollar:  { face: '#3EA15C', ink: '#FFFFFF' },
+  donut:   { face: '#F4C7C3', ink: '#3A1F23' }
+};
+(function applyCoinTheme() {
+  const hexToRgb = (h) => {
+    h = String(h).replace('#', '');
+    if (h.length === 3) h = h.split('').map((c) => c + c).join('');
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  };
+  const shade = (hex, f) => 'rgb(' + hexToRgb(hex).map((v) => Math.max(0, Math.min(255, Math.round(v * f)))).join(',') + ')';
+  const t = urlParams.get('theme');
+  const def = WIDGET_THEMES[t];
+  // mono = no/unknown theme (default), tuxedo, or darth -> black button, white text, white accents
+  const mono = !def || t === 'tuxedo' || t === 'darth';
+  const face = def ? def.face : '#FFFFFF';
+  const ink  = def ? def.ink  : '#000000';
+  const v = {
+    '--amphi-cta-bg':     mono ? '#0A0A0A' : face,
+    '--amphi-cta-ink':    mono ? '#FFFFFF' : ink,
+    '--amphi-cta-hover':  mono ? '#242424' : shade(face, 0.9),
+    '--amphi-cta-border': mono ? 'rgba(255,255,255,0.22)' : 'transparent',
+    '--amphi-accent':     mono ? '#FFFFFF' : face,
+    '--amphi-accent-ico': mono ? '#0A0A0A' : ink,
+    '--amphi-accent-hover': mono ? '#E6E6E6' : shade(face, 0.9),
+    '--amphi-accent-rgb': (mono ? [255, 255, 255] : hexToRgb(face)).join(','),
+    '--amphi-face': face,
+    '--amphi-ink': ink
+  };
+  const root = document.documentElement.style;
+  Object.keys(v).forEach((k) => root.setProperty(k, v[k]));
+  window.__amphiAccent = v['--amphi-accent'];
+})();
 
 // Create Supabase client for storage uploads
 const supabaseClient = {
@@ -516,7 +581,7 @@ function renderStep1() {
       </div>
     </div>
 
- <button onclick="startCampaign()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all">
+ <button onclick="startCampaign()" class="w-full py-4 amphi-cta font-bold rounded-xl transition-all">
      <span class="text-lg">Start →</span>
      ${campaign.reward_label ? `<span class="block text-xs font-semibold text-black mt-0.5">Get ${campaign.reward_label}</span>` : ''}
    </button>
@@ -567,7 +632,7 @@ function renderPoll(campaign) {
     </div>
 
     <button id="nextBtn" onclick="${isLastQuestion ? 'submitPoll()' : 'nextPollQuestion()'}" 
-            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg opacity-50 cursor-not-allowed" 
+            class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg opacity-50 cursor-not-allowed" 
             disabled>
       ${isLastQuestion ? 'Submit →' : 'Next Question →'}
     </button>
@@ -671,7 +736,7 @@ function renderTextFeedback(campaign) {
     </div>
 
     <button id="nextBtn" onclick="${isLastQuestion ? 'submitText()' : 'nextTextQuestion()'}" 
-            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg opacity-50 cursor-not-allowed" 
+            class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg opacity-50 cursor-not-allowed" 
             disabled>
       ${isLastQuestion ? 'Submit →' : 'Next Question →'}
     </button>
@@ -777,11 +842,11 @@ function renderVideoUpload(campaign) {
                  class="w-full rounded-lg max-h-[280px] object-contain cursor-pointer bg-black" playsinline></video>
           <div class="flex items-center gap-3 mt-3">
             <button id="videoPlayBtn" onclick="toggleVideoPlayback()" aria-label="Play"
-                    class="flex-shrink-0 w-11 h-11 rounded-full bg-[#CCFF66] hover:bg-[#b8e659] flex items-center justify-center transition-colors">
-              <svg id="videoPlayIcon" width="18" height="18" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"/></svg>
+                    class="flex-shrink-0 w-11 h-11 rounded-full amphi-accent flex items-center justify-center transition-colors">
+              <svg id="videoPlayIcon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
             </button>
             <div id="videoSeek" onclick="seekVideo(event)" class="flex-1 h-1.5 bg-white/15 rounded-full cursor-pointer overflow-hidden">
-              <div id="videoProgress" class="h-full bg-[#CCFF66] rounded-full" style="width:0%"></div>
+              <div id="videoProgress" class="h-full amphi-progress rounded-full" style="width:0%"></div>
             </div>
             <span id="videoTime" class="flex-shrink-0 text-white/70 text-sm font-mono tabular-nums">0:00</span>
           </div>
@@ -792,7 +857,7 @@ function renderVideoUpload(campaign) {
 
       <div class="w-full">
         <button id="videoRecordBtn" onclick="startVideoRecording()" 
-                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+                class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
           Start Recording
         </button>
         
@@ -802,7 +867,7 @@ function renderVideoUpload(campaign) {
             Retake
           </button>
          <button onclick="submitVideo()" 
-        class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+        class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
   Submit →
 </button>
         </div>
@@ -826,7 +891,7 @@ function renderAudioUpload(campaign) {
 
       <div class="w-full">
         <button id="recordBtn" onclick="startAudioRecording()" 
-                class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+                class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
           Start Recording
         </button>
         
@@ -836,7 +901,7 @@ function renderAudioUpload(campaign) {
             Retake
           </button>
           <button onclick="submitAudio()" 
-        class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+        class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
   Submit →
 </button>
         </div>
@@ -866,7 +931,7 @@ async function startAudioRecording() {
     document.getElementById('timer').classList.remove('hidden');
     document.getElementById('recordBtn').textContent = 'Stop Recording';
     document.getElementById('recordBtn').onclick = stopAudioRecording;
-    document.getElementById('recordBtn').classList.remove('bg-[#CCFF66]');
+    document.getElementById('recordBtn').classList.remove('amphi-cta');
     document.getElementById('recordBtn').classList.add('bg-red-500', 'hover:bg-red-600');
     
     // Collect audio data
@@ -958,8 +1023,8 @@ function showAudioPreview() {
     <div class="w-full">
       <div class="flex items-center gap-4 bg-black/30 rounded-full py-3 pl-3 pr-5">
         <button id="wavePlayBtn" onclick="toggleWavePlayback()" aria-label="Play"
-                class="flex-shrink-0 w-12 h-12 rounded-full bg-[#CCFF66] hover:bg-[#b8e659] flex items-center justify-center transition-colors">
-          <svg id="wavePlayIcon" width="20" height="20" viewBox="0 0 24 24" fill="black"><path d="M8 5v14l11-7z"/></svg>
+                class="flex-shrink-0 w-12 h-12 rounded-full amphi-accent flex items-center justify-center transition-colors">
+          <svg id="wavePlayIcon" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
         </button>
         <canvas id="waveCanvas" onclick="seekWave(event)" class="flex-1 h-10 cursor-pointer" style="min-width:0"></canvas>
         <span id="waveTime" class="flex-shrink-0 text-white/70 text-sm font-mono tabular-nums">0:00</span>
@@ -1051,7 +1116,7 @@ function drawWaveform() {
     const h = Math.max(minH, waveformPeaks[i] * (canvas.height - minH));
     const x = i * (barW + gap);
     const played = ((i + 0.5) / n) <= progress;
-    ctx.fillStyle = played ? '#CCFF66' : 'rgba(255,255,255,0.28)';
+    ctx.fillStyle = played ? (window.__amphiAccent || '#CCFF66') : 'rgba(255,255,255,0.28)';
     roundBar(ctx, x, midY - h / 2, barW, h, barW / 2);
   }
   updateWaveTime();
@@ -1112,7 +1177,7 @@ function retakeAudio() {
   // Reset the record button back to its initial state
   const recordBtn = document.getElementById('recordBtn');
   recordBtn.classList.remove('hidden', 'bg-red-500', 'hover:bg-red-600');
-  recordBtn.classList.add('bg-[#CCFF66]', 'hover:bg-[#b8e659]');
+  recordBtn.classList.add('amphi-cta');
   recordBtn.textContent = 'Start Recording';
   recordBtn.onclick = startAudioRecording;
 
@@ -1264,7 +1329,7 @@ preview.classList.remove('hidden');
     const btn = document.getElementById('videoRecordBtn');
     btn.textContent = 'Stop Recording';
     btn.onclick = stopVideoRecording;
-    btn.classList.remove('bg-[#CCFF66]', 'hover:bg-[#b8e659]');
+    btn.classList.remove('amphi-cta');
     btn.classList.add('bg-red-500', 'hover:bg-red-600');
     
     // Show timer
@@ -1423,7 +1488,7 @@ function retakeVideo() {
   
   const btn = document.getElementById('videoRecordBtn');
   btn.classList.remove('hidden', 'bg-red-500', 'hover:bg-red-600');
-  btn.classList.add('bg-[#CCFF66]', 'hover:bg-[#b8e659]');
+  btn.classList.add('amphi-cta');
   btn.textContent = 'Start Recording';
   btn.onclick = startVideoRecording;
   
@@ -1531,12 +1596,12 @@ function renderImageUpload(campaign) {
               Take Photo
             </button>
             <button onclick="openFilePicker()" 
-                    class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+                    class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
               Choose from Gallery
             </button>
           ` : `
             <button onclick="openFilePicker()" 
-                    class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+                    class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
               Choose Photo
             </button>
           `}
@@ -1548,7 +1613,7 @@ function renderImageUpload(campaign) {
             Choose Different Photo
           </button>
           <button onclick="submitImage()" 
-        class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+        class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
   Submit →
 </button>
         </div>
@@ -1722,7 +1787,7 @@ function renderStep3() {
     </div>
 
     <button id="submitBtn" onclick="handleFreeSubmission()"
-            class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all">
+            class="w-full py-4 amphi-cta font-bold rounded-xl transition-all">
       <span class="text-lg">Submit →</span>
       ${campaign.reward_label ? `<span class="block text-xs font-semibold text-black mt-0.5">Reveal your code</span>` : ''}
     </button>
@@ -1794,13 +1859,13 @@ async function handleFreeSubmission() {
             <div class="text-white/50 text-xs mb-2">Your code</div>
             <div class="flex items-center justify-between gap-3">
               <span id="rewardCode" class="text-white text-2xl font-bold tracking-wide">${campaign.reward_code}</span>
-              <button onclick="copyRewardCode()" id="copyBtn" class="shrink-0 px-4 py-2 bg-[#CCFF66] hover:bg-[#b8e659] text-black text-sm font-bold rounded-lg transition">Copy</button>
+              <button onclick="copyRewardCode()" id="copyBtn" class="shrink-0 px-4 py-2 amphi-cta text-sm font-bold rounded-lg transition">Copy</button>
             </div>
           </div>
         ` : `
           <p class="text-white/60 text-sm mb-6">Thanks for sharing your response.</p>
         `}
-        <button onclick="handleFinalClose()" class="w-full py-4 bg-[#CCFF66] hover:bg-[#b8e659] text-black font-bold rounded-xl transition-all text-lg">
+        <button onclick="handleFinalClose()" class="w-full py-4 amphi-cta font-bold rounded-xl transition-all text-lg">
           Done
         </button>
       </div>
