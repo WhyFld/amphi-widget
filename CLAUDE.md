@@ -29,7 +29,7 @@ Read from the Supabase anon view `brand_coin_config` (exposes only `coin_theme`,
   dollar, donut. ⚠️ The SAME ids + hex values are duplicated in THREE places —
   `embed.js` (`COIN_THEMES`), `widget.html` (`WIDGET_THEMES`), and the dashboard
   presets. Keep all three in sync; adding a colour = one line in each.
-- **Position** — `br` (default) / `bm` / `bl`.
+- **Position** — `br` (default) / `bm` / `bl` / `brr` (bottom-right raised, `bottom:100px`, to stack above an existing chat/help widget).
 - **Copy** — up to 8 chars per line (face top/bottom, back top/bottom).
 
 ## Coin → CTA theming (popup matches the coin the shopper tapped)

@@ -95,10 +95,12 @@ function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
 
-    // Launcher position (brand-level): br (default), bm (bottom-middle), bl (bottom-left).
+    // Launcher position (brand-level): br (default), bm (bottom-middle), bl (bottom-left),
+    // brr (bottom-right raised — stacks above an existing chat/help widget).
     const pos = (coinConfig && coinConfig.position) || 'br';
-    const posCss = pos === 'bm' ? 'bottom: 20px; left: 50%; transform: translateX(-50%);'
-                 : pos === 'bl' ? 'bottom: 20px; left: 20px;'
+    const posCss = pos === 'bm'  ? 'bottom: 20px; left: 50%; transform: translateX(-50%);'
+                 : pos === 'bl'  ? 'bottom: 20px; left: 20px;'
+                 : pos === 'brr' ? 'bottom: 100px; right: 20px;'
                  : 'bottom: 20px; right: 20px;';
 
     minimizedIcon.style.cssText = `
