@@ -5,6 +5,19 @@ The embeddable widget merchants add to their store. Shoppers tap a floating
 image) in exchange for a reward. Static HTML/JS on Vercel; production domain
 **widget.getamphi.com**. Deploy flow: `staging` → `main`.
 
+## ⚠️ THERE ARE TWO WIDGET LOADERS — keep them in sync
+This repo's `embed.js` is the **standalone** loader (paste-a-`<script>`-tag). But
+merchants who install via the **Shopify App Store** get a *separate* loader:
+**`amphi-dashboard/extensions/amphi-embed/assets/embed.js`** (the theme app
+extension, deployed to Shopify via `shopify app deploy`, NOT Vercel). Almost all
+real merchants use the Shopify one.
+- **Any change to the coin — theme, copy, position, render, behaviour — MUST be
+  made in BOTH files**, or App-Store merchants silently miss it. (This exact drift
+  shipped a coin that ignored all personalisation; caught only in production.)
+- Config source differs: the standalone reads `brand_coin_config` directly; the
+  extension gets `coin {theme,copy,position}` from `/api/widget-config`
+  (`amphi-dashboard/api/widget-config.js`). A new coin field = update that endpoint too.
+
 ## Files
 - `embed.js` — the script merchants paste
   (`<script src="https://widget.getamphi.com/embed.js?brand_id=..."></script>`).
