@@ -1,4 +1,9 @@
-// AMPHI Widget Embed Script
+// AMPHI Widget Embed Script (standalone paste-a-script loader)
+// Perf: Three.js (~580KB) starts downloading in parallel with the config calls,
+// the two Supabase lookups run together, and a lightweight CSS coin shows the
+// moment we know there's a campaign — so the launcher appears in ~1s instead of
+// waiting for the whole 3D engine. MUST stay in sync with the Shopify extension
+// loader (amphi-dashboard/extensions/amphi-embed/assets/embed.js).
 (function() {
   'use strict';
 
@@ -59,7 +64,7 @@ const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71
       // Fetch active campaign for this brand
       const SUPABASE_URL = 'https://puhsbgrublugmqqgvmqd.supabase.co';
       const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InB1aHNiZ3J1Ymx1Z21xcWd2bXFkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjAwMTE5MjQsImV4cCI6MjA3NTU4NzkyNH0.tFzNj4RMmgxa2hm_nf0IR1dvedy2u3GST2LmjLeV6WE';
-      
+
       const response = await fetch(
         `${SUPABASE_URL}/rest/v1/tasks?brand_id=eq.${BRAND_ID}&is_active=eq.true&select=id`,
         {
@@ -71,26 +76,56 @@ const BRAND_ID = window.AMPHI_BRAND_ID || urlParams.get('brand_id') || '3c4b9a71
       );
 
       const campaigns = await response.json();
-      
+
       // No active campaigns
       if (!campaigns || campaigns.length === 0) {
         return true; // Don't show icon
       }
 
       const campaignId = campaigns[0].id;
-      
+
       // Check localStorage for completion
       const completionKey = `amphi_completed_${BRAND_ID}_${campaignId}`;
       const isCompleted = localStorage.getItem(completionKey) === 'true';
-      
+
       return isCompleted;
-      
+
     } catch (error) {
       console.error('AMPHI: Failed to check campaign completion', error);
       return false; // Show icon on error (safer)
     }
   }
-  
+
+  // ---------- Three.js loader (starts in parallel with the config fetches) ----------
+  let _threePromise = null;
+  function loadThree() {
+    if (_threePromise) return _threePromise;
+    _threePromise = new Promise((resolve, reject) => {
+      if (window.THREE) { resolve(window.THREE); return; }
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
+      s.onload = () => resolve(window.THREE);
+      s.onerror = reject;
+      document.head.appendChild(s);
+    });
+    return _threePromise;
+  }
+
+  function ensureStyle() {
+    if (document.getElementById('amphi-embed-style')) return;
+    const st = document.createElement('style');
+    st.id = 'amphi-embed-style';
+    st.textContent = '@keyframes amphiCoinPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}';
+    document.head.appendChild(st);
+  }
+
+  function posToCss(pos) {
+    return pos === 'bm'  ? 'bottom: 20px; left: 50%; transform: translateX(-50%);'
+         : pos === 'bl'  ? 'bottom: 20px; left: 20px;'
+         : pos === 'brr' ? 'bottom: 100px; right: 20px;'
+         : 'bottom: 20px; right: 20px;';
+  }
+
 function createMinimizedIcon() {
     minimizedIcon = document.createElement('div');
     minimizedIcon.id = 'amphi-minimized-icon';
@@ -98,14 +133,10 @@ function createMinimizedIcon() {
     // Launcher position (brand-level): br (default), bm (bottom-middle), bl (bottom-left),
     // brr (bottom-right raised — stacks above an existing chat/help widget).
     const pos = (coinConfig && coinConfig.position) || 'br';
-    const posCss = pos === 'bm'  ? 'bottom: 20px; left: 50%; transform: translateX(-50%);'
-                 : pos === 'bl'  ? 'bottom: 20px; left: 20px;'
-                 : pos === 'brr' ? 'bottom: 100px; right: 20px;'
-                 : 'bottom: 20px; right: 20px;';
 
     minimizedIcon.style.cssText = `
       position: fixed;
-      ${posCss}
+      ${posToCss(pos)}
       width: 90px;
       height: 90px;
       cursor: pointer;
@@ -113,146 +144,165 @@ function createMinimizedIcon() {
       filter: drop-shadow(0 3px 9px rgba(0, 0, 0, 0.32));
     `;
 
+    // Theme + copy resolved up-front, shared by the placeholder and the 3D coin.
+    const coinTheme = COIN_THEMES[coinConfig && coinConfig.theme] || COIN_THEMES.tuxedo;
+    const faceCol = coinTheme.face, inkCol = coinTheme.ink;
+    const cc = (coinConfig && coinConfig.copy) || DEFAULT_COPY;
+    const FT = cleanWord(cc.ft), FB = cleanWord(cc.fb), BT = cleanWord(cc.bt), BB = cleanWord(cc.bb);
+
+    // Instant placeholder — a flat CSS coin shown immediately so the launcher is
+    // visible in ~1s. Replaced by the spinning 3D coin when Three.js is ready.
+    ensureStyle();
+    const placeholder = document.createElement('div');
+    placeholder.className = 'amphi-coin-ph';
+    placeholder.style.cssText = 'position:absolute;inset:0;box-sizing:border-box;border-radius:50%;'
+      + 'display:flex;flex-direction:column;align-items:center;justify-content:center;'
+      + 'background:' + faceCol + ';border:3px solid ' + inkCol + ';color:' + inkCol + ';'
+      + 'font-family:Arial,Helvetica,sans-serif;font-weight:800;font-size:13px;line-height:1.05;'
+      + 'letter-spacing:.02em;text-align:center;'
+      + 'animation:amphiCoinPulse 1.2s ease-in-out infinite;';
+    placeholder.innerHTML = '<span>' + FT + '</span><span>' + FB + '</span>';
+
     const canvas = document.createElement('canvas');
+    canvas.style.cssText = 'display:none;';
+
+    minimizedIcon.appendChild(placeholder);
     minimizedIcon.appendChild(canvas);
     minimizedIcon.title = 'Share & Earn!';
     minimizedIcon.addEventListener('click', openWidget);
     document.body.appendChild(minimizedIcon);
 
-    const script = document.createElement('script');
-    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
-    script.onload = () => {
-      const dpr = window.devicePixelRatio || 1;
-      const font = new FontFace('Unica77', 'url(https://widget.getamphi.com/fonts/Unica77LLTT-Bold__1_.ttf)', { weight: '700' });
-      font.load().then(loadedFont => { document.fonts.add(loadedFont); });
-      const SIZE = 90;
+    // Upgrade to the 3D coin once Three.js is ready (already downloading, see init).
+    loadThree().then((THREE) => {
+      buildCoin(THREE, canvas, faceCol, inkCol, FT, FB, BT, BB);
+      canvas.style.display = 'block';
+      if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+    }).catch(() => { /* Three.js failed to load -> keep the CSS coin */ });
+  }
 
-      const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
-      camera.position.z = 3;
+  // Builds the spinning 3D coin into the given canvas. Visual output is identical
+  // to the previous inline version; only when it runs has changed.
+  function buildCoin(THREE, canvas, faceCol, inkCol, FT, FB, BT, BB) {
+    const dpr = window.devicePixelRatio || 1;
+    const font = new FontFace('Unica77', 'url(https://widget.getamphi.com/fonts/Unica77LLTT-Bold__1_.ttf)', { weight: '700' });
+    font.load().then(loadedFont => { document.fonts.add(loadedFont); });
+    const SIZE = 90;
 
-      const renderer = new THREE.WebGLRenderer({ 
-        canvas: canvas, 
-        alpha: true,
-        antialias: true
-      });
-      renderer.setSize(SIZE, SIZE);
-      renderer.setPixelRatio(dpr);
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 1000);
+    camera.position.z = 3;
 
-      const coin = new THREE.Group();
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true
+    });
+    renderer.setSize(SIZE, SIZE);
+    renderer.setPixelRatio(dpr);
 
-      // Resolve the brand's coin theme + copy (falls back to the classic look).
-      const coinTheme = COIN_THEMES[coinConfig && coinConfig.theme] || COIN_THEMES.tuxedo;
-      const faceCol = coinTheme.face, inkCol = coinTheme.ink;
-      const cc = (coinConfig && coinConfig.copy) || DEFAULT_COPY;
-      const FT = cleanWord(cc.ft), FB = cleanWord(cc.fb), BT = cleanWord(cc.bt), BB = cleanWord(cc.bb);
+    const coin = new THREE.Group();
 
-      const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
-      const bodyMaterial = new THREE.MeshBasicMaterial({ color: faceCol });
-      const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-      body.rotation.x = Math.PI / 2;
-      coin.add(body);
+    const bodyGeometry = new THREE.CylinderGeometry(1, 1, 0.3, 64);
+    const bodyMaterial = new THREE.MeshBasicMaterial({ color: faceCol });
+    const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+    body.rotation.x = Math.PI / 2;
+    coin.add(body);
 
-      const ridgeCount = 40;
-      for (let i = 0; i < ridgeCount; i++) {
-        const angle = (i / ridgeCount) * Math.PI * 2;
-        const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
-        const ridgeMaterial = new THREE.MeshBasicMaterial({ color: inkCol });
-        const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
-        ridge.position.x = Math.cos(angle) * 1.04;
-        ridge.position.y = Math.sin(angle) * 1.04;
-        ridge.position.z = 0;
-        ridge.rotation.z = angle;
-        coin.add(ridge);
-      }
+    const ridgeCount = 40;
+    for (let i = 0; i < ridgeCount; i++) {
+      const angle = (i / ridgeCount) * Math.PI * 2;
+      const ridgeGeometry = new THREE.BoxGeometry(0.01, 0.08, 0.32);
+      const ridgeMaterial = new THREE.MeshBasicMaterial({ color: inkCol });
+      const ridge = new THREE.Mesh(ridgeGeometry, ridgeMaterial);
+      ridge.position.x = Math.cos(angle) * 1.04;
+      ridge.position.y = Math.sin(angle) * 1.04;
+      ridge.position.z = 0;
+      ridge.rotation.z = angle;
+      coin.add(ridge);
+    }
 
     const drawArcText = (ctx, text, cx, cy, radius, startAngle, isBottom) => {
-  const chars = text.split('');
-  const fontSize = 72 * dpr;
-  ctx.font = `bold ${fontSize}px Unica77, Arial Black, Arial, sans-serif`;
-  const totalWidth = chars.reduce((sum, c) => sum + ctx.measureText(c).width, 0);
-  const totalAngle = totalWidth / radius;
-  let angle = startAngle - totalAngle / 2;
-  chars.forEach(char => {
-    const charWidth = ctx.measureText(char).width;
-    angle += charWidth / 2 / radius;
-    ctx.save();
-    ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
-    ctx.rotate(angle + (isBottom ? -Math.PI / 2 : Math.PI / 2));
-    ctx.fillText(char, 0, 0);
-    angle += charWidth / 2 / radius;
-    ctx.restore();
-  });
-};
-
-const createTextTexture = (topText, bottomText, faceCol, inkCol) => {
-  const texCanvas = document.createElement('canvas');
-  const texSize = 512 * dpr;
-  texCanvas.width = texSize;
-  texCanvas.height = texSize;
-  const ctx = texCanvas.getContext('2d');
-  ctx.fillStyle = faceCol;
-  ctx.fillRect(0, 0, texSize, texSize);
-  ctx.fillStyle = inkCol;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  const cx = texSize / 2;
-  const cy = texSize / 2;
-  const radius = texSize * 0.33;
-  drawArcText(ctx, topText, cx, cy, radius, -Math.PI / 2, false);
-  drawArcText(ctx, bottomText.split('').reverse().join(''), cx, cy, radius, Math.PI / 2, true);
-  const texture = new THREE.CanvasTexture(texCanvas);
-  texture.minFilter = THREE.LinearFilter;
-  texture.magFilter = THREE.LinearFilter;
-  return texture;
-};
-      const frontGeometry = new THREE.CircleGeometry(1.05, 64);
-      const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(FT, FB, faceCol, inkCol) });
-
-      const front = new THREE.Mesh(frontGeometry, frontMaterial);
-      front.position.z = 0.151;
-      coin.add(front);
-
-      const backGeometry = new THREE.CircleGeometry(1.05, 64);
-const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB, faceCol, inkCol) });
-      const back = new THREE.Mesh(backGeometry, backMaterial);
-      back.position.z = -0.151;
-      back.rotation.y = Math.PI;
-      coin.add(back);
-
-      const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
-      const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: inkCol, side: THREE.DoubleSide }));
-      frontEdge.position.z = 0.16;
-      coin.add(frontEdge);
-
-      const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: inkCol, side: THREE.DoubleSide }));
-      backEdge.position.z = -0.16;
-      coin.add(backEdge);
-
-
-
-      scene.add(coin);
-
-      const light = new THREE.DirectionalLight(0xffffff, 1);
-      light.position.set(0, 0, 1);
-      scene.add(light);
-
-      let t = 0;
-      function animate() {
-        requestAnimationFrame(animate);
-        t += 0.022;
-        // Faster base rotation with a sine wobble on Y and a gentle tilt on X
-        coin.rotation.y += 0.015;
-        coin.rotation.x = Math.sin(t * 0.7) * 0.18;
-        coin.rotation.z = Math.sin(t * 0.4) * 0.08;
-        renderer.render(scene, camera);
-      }
-      animate();
+      const chars = text.split('');
+      const fontSize = 72 * dpr;
+      ctx.font = `bold ${fontSize}px Unica77, Arial Black, Arial, sans-serif`;
+      const totalWidth = chars.reduce((sum, c) => sum + ctx.measureText(c).width, 0);
+      const totalAngle = totalWidth / radius;
+      let angle = startAngle - totalAngle / 2;
+      chars.forEach(char => {
+        const charWidth = ctx.measureText(char).width;
+        angle += charWidth / 2 / radius;
+        ctx.save();
+        ctx.translate(cx + Math.cos(angle) * radius, cy + Math.sin(angle) * radius);
+        ctx.rotate(angle + (isBottom ? -Math.PI / 2 : Math.PI / 2));
+        ctx.fillText(char, 0, 0);
+        angle += charWidth / 2 / radius;
+        ctx.restore();
+      });
     };
-    
-    document.head.appendChild(script);
+
+    const createTextTexture = (topText, bottomText, faceCol, inkCol) => {
+      const texCanvas = document.createElement('canvas');
+      const texSize = 512 * dpr;
+      texCanvas.width = texSize;
+      texCanvas.height = texSize;
+      const ctx = texCanvas.getContext('2d');
+      ctx.fillStyle = faceCol;
+      ctx.fillRect(0, 0, texSize, texSize);
+      ctx.fillStyle = inkCol;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      const cx = texSize / 2;
+      const cy = texSize / 2;
+      const radius = texSize * 0.33;
+      drawArcText(ctx, topText, cx, cy, radius, -Math.PI / 2, false);
+      drawArcText(ctx, bottomText.split('').reverse().join(''), cx, cy, radius, Math.PI / 2, true);
+      const texture = new THREE.CanvasTexture(texCanvas);
+      texture.minFilter = THREE.LinearFilter;
+      texture.magFilter = THREE.LinearFilter;
+      return texture;
+    };
+
+    const frontGeometry = new THREE.CircleGeometry(1.05, 64);
+    const frontMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(FT, FB, faceCol, inkCol) });
+    const front = new THREE.Mesh(frontGeometry, frontMaterial);
+    front.position.z = 0.151;
+    coin.add(front);
+
+    const backGeometry = new THREE.CircleGeometry(1.05, 64);
+    const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB, faceCol, inkCol) });
+    const back = new THREE.Mesh(backGeometry, backMaterial);
+    back.position.z = -0.151;
+    back.rotation.y = Math.PI;
+    coin.add(back);
+
+    const edgeRingGeometry = new THREE.RingGeometry(1.0, 1.05, 64);
+    const frontEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: inkCol, side: THREE.DoubleSide }));
+    frontEdge.position.z = 0.16;
+    coin.add(frontEdge);
+
+    const backEdge = new THREE.Mesh(edgeRingGeometry, new THREE.MeshBasicMaterial({ color: inkCol, side: THREE.DoubleSide }));
+    backEdge.position.z = -0.16;
+    coin.add(backEdge);
+
+    scene.add(coin);
+
+    const light = new THREE.DirectionalLight(0xffffff, 1);
+    light.position.set(0, 0, 1);
+    scene.add(light);
+
+    let t = 0;
+    function animate() {
+      requestAnimationFrame(animate);
+      t += 0.022;
+      // Faster base rotation with a sine wobble on Y and a gentle tilt on X
+      coin.rotation.y += 0.015;
+      coin.rotation.x = Math.sin(t * 0.7) * 0.18;
+      coin.rotation.z = Math.sin(t * 0.4) * 0.08;
+      renderer.render(scene, camera);
+    }
+    animate();
   }
-  
+
   // Create widget container (iframe)
   function createWidgetContainer() {
     widgetContainer = document.createElement('div');
@@ -266,7 +316,7 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
       z-index: 9999999;
       display: none;
     `;
-    
+
     const iframe = document.createElement('iframe');
     iframe.id = 'amphi-widget-iframe';
     // Pass brand ID + coin theme to the widget via URL parameters, so the
@@ -296,11 +346,11 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
       case 'minimize':
         minimizeWidget();
         break;
-        
+
       case 'maximize':
         openWidget();
         break;
-        
+
       case 'hide_icon_forever':
         hideIconPermanently(event.data.brandId, event.data.campaignId);
         break;
@@ -326,7 +376,7 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
       minimizedIcon.style.display = 'flex';
     }
     isMinimized = true;
-    
+
     // Remember that user dismissed it
     localStorage.setItem('amphi_user_dismissed', 'true');
   }
@@ -337,18 +387,18 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
     // Store completion in localStorage
     const completionKey = `amphi_completed_${brandId}_${campaignId}`;
     localStorage.setItem(completionKey, 'true');
-    
+
     // Remove icon from DOM
     if (minimizedIcon && minimizedIcon.parentNode) {
       minimizedIcon.parentNode.removeChild(minimizedIcon);
       minimizedIcon = null;
     }
-    
+
     // Hide widget
     if (widgetContainer) {
       widgetContainer.style.display = 'none';
     }
-    
+
     console.log('✅ AMPHI: Campaign completed, icon hidden permanently');
   }
 
@@ -356,7 +406,7 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
   function autoOpen() {
   // Check if user has dismissed widget before
   const userDismissed = localStorage.getItem('amphi_user_dismissed');
-  
+
   if (shouldAutoOpen && !userDismissed) {
     setTimeout(() => {
       if (isMinimized) {
@@ -366,6 +416,13 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
   }
 }
 
+  function show() {
+    shouldAutoOpen = true;
+    createMinimizedIcon();
+    createWidgetContainer();
+    autoOpen();
+  }
+
   // Initialize
   async function init() {
     if (document.readyState === 'loading') {
@@ -373,25 +430,29 @@ const backMaterial = new THREE.MeshBasicMaterial({ map: createTextTexture(BT, BB
       return;
     }
 
+    // Start the ~580KB Three.js download NOW, in parallel with the config calls.
+    loadThree();
+
     // window.AMPHI_FORCE_SHOW (used by the staging coin sandbox) renders the coin
     // regardless of campaign/completion state, so the coin can be designed in
     // isolation. Off by default → production behaviour is unchanged.
-    if (!window.AMPHI_FORCE_SHOW) {
-      // Check if campaign is completed
-      const isCompleted = await checkCampaignCompletion();
-
-      if (isCompleted) {
-        console.log('ℹ️ AMPHI: Campaign already completed, not showing widget');
-        return; // Don't create anything
-      }
+    if (window.AMPHI_FORCE_SHOW) {
+      coinConfig = await fetchCoinConfig();
+      show();
+      return;
     }
 
-    // Campaign not completed - show widget
-    shouldAutoOpen = true;
-    coinConfig = await fetchCoinConfig();
-    createMinimizedIcon();
-    createWidgetContainer();
-    autoOpen();
+    // Run the campaign check and the coin-config fetch together (not one after
+    // the other) so the coin can appear as soon as both return.
+    const [isCompleted, cfg] = await Promise.all([checkCampaignCompletion(), fetchCoinConfig()]);
+    coinConfig = cfg;
+
+    if (isCompleted) {
+      console.log('ℹ️ AMPHI: Campaign already completed or none active, not showing widget');
+      return; // Don't create anything
+    }
+
+    show();
   }
 
   init();
