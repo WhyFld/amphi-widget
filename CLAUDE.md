@@ -28,15 +28,14 @@ real merchants use the Shopify one.
   lamejs. Uploads media to Supabase storage; finalises submissions via the
   dashboard API. Uses Unica77.
 - `demo.html` — staging coin **sandbox** (hardcoded test brand, forces the coin).
-- `preview.html` — reusable **test storefront**. Loads `/embed.js` *relative* to
-  the page, so the same file reflects whichever deployment serves it. Brand from
-  `?brand_id=`; coin forced to show (`&force=0` to opt out); `noindex`.
+- `preview.html` — the reusable **preview storefront**, dressed as a made-up
+  lifestyle brand for recording social content (currently **Salt Club**, a swim
+  brand; the look rotates with each weekly brief, the URL never changes). One
+  screen, no scrolling. Loads `/embed.js` *relative* to the page, so the same file
+  reflects whichever deployment serves it. Brand from `?brand_id=`; coin forced to
+  show (`&force=0` to opt out); `noindex`.
   - LIVE: `https://widget.getamphi.com/preview.html?brand_id=<ID>`
   - STAGING: `https://amphi-widget-git-staging-yannis-projects-79bac4d4.vercel.app/preview.html?brand_id=<ID>`
-- `stores/*.html` — one-screen **content backdrops**: made-up lifestyle brands
-  (e.g. `stores/salt-club.html`, a swim brand) for screen-recording the widget for
-  socials. Same loading as `preview.html` (`?brand_id=`, coin forced, `noindex`),
-  but no test note and no scrolling. A new weekly brief = a new file here.
 
 ## Coin personalisation (merchant sets it in the dashboard Personalise tab)
 Read from the Supabase anon view `brand_coin_config` (exposes only `coin_theme`,
