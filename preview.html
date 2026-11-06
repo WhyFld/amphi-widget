@@ -151,6 +151,11 @@
       var brand = (q.get('brand_id') || q.get('brand') || '').replace(/[^a-zA-Z0-9-]/g, '');
       if (!brand) return;
       if (q.get('force') !== '0') window.AMPHI_FORCE_SHOW = true;
+      // Open the popup from THIS deployment's widget.html, not production. Without
+      // this, embed.js defaults WIDGET_URL to widget.getamphi.com/widget.html, so
+      // the staging preview would load the *production* popup and never reflect
+      // staging widget.html changes (the exact trap that hid the mobile-size fix).
+      window.AMPHI_WIDGET_URL = location.origin + '/widget.html';
       var s = document.createElement('script');
       s.src = '/embed.js?brand_id=' + encodeURIComponent(brand);
       document.body.appendChild(s);
