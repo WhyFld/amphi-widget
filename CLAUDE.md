@@ -33,6 +33,10 @@ real merchants use the Shopify one.
   `?brand_id=`; coin forced to show (`&force=0` to opt out); `noindex`.
   - LIVE: `https://widget.getamphi.com/preview.html?brand_id=<ID>`
   - STAGING: `https://amphi-widget-git-staging-yannis-projects-79bac4d4.vercel.app/preview.html?brand_id=<ID>`
+- `stores/*.html` — one-screen **content backdrops**: made-up lifestyle brands
+  (e.g. `stores/salt-club.html`, a swim brand) for screen-recording the widget for
+  socials. Same loading as `preview.html` (`?brand_id=`, coin forced, `noindex`),
+  but no test note and no scrolling. A new weekly brief = a new file here.
 
 ## Coin personalisation (merchant sets it in the dashboard Personalise tab)
 Read from the Supabase anon view `brand_coin_config` (exposes only `coin_theme`,
