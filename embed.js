@@ -327,7 +327,12 @@ function createMinimizedIcon() {
     // Pass brand ID + coin theme to the widget via URL parameters, so the
     // pop-up's CTA/accents match the coin the shopper just tapped.
     var coinTheme = coinConfig && coinConfig.theme;
-    iframe.src = WIDGET_URL + '?brand=' + BRAND_ID + (coinTheme ? '&theme=' + encodeURIComponent(coinTheme) : '');
+    // Cache-buster: browsers (esp. iOS Safari) cache the iframe's widget.html
+    // aggressively, so widget.html changes don't reach returning visitors until
+    // their cache expires. Appending a version makes each release a new URL, so
+    // the popup always loads fresh. Bump WIDGET_VERSION whenever widget.html changes.
+    var WIDGET_VERSION = '20261106';
+    iframe.src = WIDGET_URL + '?brand=' + BRAND_ID + (coinTheme ? '&theme=' + encodeURIComponent(coinTheme) : '') + '&v=' + WIDGET_VERSION;
     iframe.allow = 'camera *; microphone *; display-capture *; clipboard-write *';
     iframe.style.cssText = `
       width: 100%;
