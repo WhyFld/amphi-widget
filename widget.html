@@ -208,9 +208,12 @@
 /* Mobile adjustments */
 @media (max-width: 640px) {
   .amphi-widget-container {
-    height: auto;
-    min-height: 500px;
-    max-height: 85vh; /* More room for mobile keyboard */
+    /* Fixed height on mobile too, so the card stays the same size across every
+       step (matching desktop) instead of resizing to each step's content.
+       dvh keeps it constant AND shrinks when the mobile keyboard opens; the vh
+       line is a fallback for browsers without dvh. */
+    height: 85vh;
+    height: 85dvh;
   }
   
   #content {
