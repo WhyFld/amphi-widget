@@ -29,8 +29,8 @@ real merchants use the Shopify one.
   dashboard API. Uses Unica77.
 - `demo.html` — staging coin **sandbox** (hardcoded test brand, forces the coin).
 - `preview.html` — the reusable **preview storefront**, dressed as a made-up
-  lifestyle brand for recording social content (currently **Salt Club**, a swim
-  brand; the look rotates with each weekly brief, the URL never changes). One
+  lifestyle brand for recording social content (currently **VERSO**, a made-up
+  silver jewellery brand; the look rotates with each weekly brief, the URL never changes). One
   screen, no scrolling. Loads `/embed.js` *relative* to the page, so the same file
   reflects whichever deployment serves it. Brand from `?brand_id=`; coin forced to
   show (`&force=0` to opt out); `noindex`.
